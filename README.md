@@ -1,10 +1,12 @@
 # DotnetCsharp
 C# Dotnet으로 배우는 백엔드 기초
 
+# Goal
+백엔드의 기초를 이해하고 ASP.NET Core를 이용하여 웹 어플리케이션을 만드는 실습을 한다.
+
 # Target
- - 백엔드 이해
- - ASP.NET 기초 사용법 익히기
- - MVC 기반 웹앱 공개하기
+ - 백엔드의 기초를 알고 싶은 사람
+ - ASP.NET Core의 사용법을 배우고 싶은 사람
 
 # Contents
 
