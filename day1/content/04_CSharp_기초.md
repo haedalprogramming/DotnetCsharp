@@ -173,6 +173,30 @@
     - [Create deposits and withdrawals](#create-deposits-and-withdrawals)
     - [Challenge - log all transactions](#challenge---log-all-transactions)
   - [Object-Oriented programming (C#)](#object-oriented-programming-c)
+    - [Create different types of accounts](#create-different-types-of-accounts)
+    - [Different overdraft rules](#different-overdraft-rules)
+    - [Summary](#summary)
+  - [Inheritance in C# and .NET](#inheritance-in-c-and-net)
+    - [Running the examples](#running-the-examples)
+    - [Background: What is inheritance?](#background-what-is-inheritance)
+    - [Implicit inheritance](#implicit-inheritance)
+    - [Inheritance and an "is a" relationship](#inheritance-and-an-is-a-relationship)
+    - [Designing the base class and derived classes](#designing-the-base-class-and-derived-classes)
+      - [The base Publication class](#the-base-publication-class)
+      - [The 'Book' class](#the-book-class)
+    - [Designing abstract base classes and their derived classes](#designing-abstract-base-classes-and-their-derived-classes)
+  - [패턴 일치와 is 및 as 연산자를 사용하여 안전하게 캐스트하는 방법](#패턴-일치와-is-및-as-연산자를-사용하여-안전하게-캐스트하는-방법)
+  - [자습서: 패턴 일치를 사용하여 형식 기반 및 데이터 기반 알고리즘 빌드](#자습서-패턴-일치를-사용하여-형식-기반-및-데이터-기반-알고리즘-빌드)
+    - [Scenarios for pattern matching](#scenarios-for-pattern-matching)
+    - [Pattern matching designs](#pattern-matching-designs)
+    - [Implement the basic toll calculations](#implement-the-basic-toll-calculations)
+    - [Add occupancy pricing](#add-occupancy-pricing)
+    - [Add peak pricing](#add-peak-pricing)
+  - [How to handle an exception using try/catch](#how-to-handle-an-exception-using-trycatch)
+    - [Example](#example-1)
+    - [Comments](#comments)
+  - [How to execute cleanup code using finally](#how-to-execute-cleanup-code-using-finally)
+    - [Example](#example-2)
   - [출처](#출처)
   - [다음](#다음)
 
@@ -1817,7 +1841,7 @@ struct, class, interface, enum, record 구문을 사용하여 자체 사용자 �
 
 다음 그림에서는 CTS에서 값 형식과 참조 형식 간의 관계를 보여 줍니다.
 
-![](./img/value-reference-types-common-type-system.png)
+![](../img/04_CSharp_기초/value-reference-types-common-type-system.png)
 
 ```
  참고
@@ -2830,7 +2854,7 @@ Equals의 System.ValueType 구현에서는 경우에 따라 boxing 및 리플렉
 
 다음 그림은 일부 비즈니스 프로세스의 작업 항목을 나타내는 WorkItem 클래스를 보여 줍니다. 모든 클래스와 마찬가지로, System.Object에서 파생되고 해당 메서드를 모두 상속합니다. WorkItem은 자체 멤버 6개를 추가합니다. 생성자는 상속되지 않으므로 이러한 멤버에는 생성자도 포함됩니다. ChangeRequest 클래스는 WorkItem에서 상속되며 특정 종류의 작업 항목을 나타냅니다. ChangeRequest는 WorkItem 및 Object에서 상속하는 멤버에 둘 이상의 멤버를 추가합니다. 고유한 생성자를 추가해야 하며, originalItemID도 추가합니다. originalItemID 속성을 사용하면 ChangeRequest 인스턴스를 변경 요청이 적용되는 원래 WorkItem에 연결할 수 있습니다.
 
-![](../img/07_CSharp_기초/class-inheritance-diagram.png)
+![](../img/05_CSharp_기초/class-inheritance-diagram.png)
 
 다음 예제에서는 앞의 그림에서 보여 주는 클래스 관계가 C#에서 어떻게 표현되는지를 보여 줍니다. 또한 이 예제에서 WorkItem은 가상 메서드 Object.ToString을 재정의하는 방법과 ChangeRequest 클래스가 메서드의 WorkItem 구현을 상속하는 방법을 보여 줍니다. 첫 번째 블록은 클래스를 정의합니다.
 
@@ -5557,6 +5581,1799 @@ Console.WriteLine(account.GetAccountHistory());
 ---
 ## Object-Oriented programming (C#)
 
+C#는 객체 지향 프로그래밍 언어입니다. 객체 지향 프로그래밍의 네 가지 기본 원칙은 다음과 같습니다:
+
+- **추상화**: 시스템의 추상적인 표현을 정의하기 위해 엔티티의 관련 속성과 상호 작용을 클래스로 모델링하는 것.
+- **캡슐화**: 객체의 내부 상태와 기능을 숨기고, 공개된 함수 집합을 통해서만 접근을 허용하는 것.
+- **상속**: 기존 추상화를 기반으로 새로운 추상화를 생성할 수 있는 능력.
+- **다형성**: 여러 추상화에 걸쳐 상속된 속성이나 메서드를 다양한 방식으로 구현할 수 있는 능력.
+
+이전 튜토리얼 '클래스 소개'에서는 추상화와 캡슐화를 모두 보았습니다. `BankAccount` 클래스는 은행 계좌 개념에 대한 추상화를 제공했습니다. `BankAccount` 클래스를 사용하는 코드를 변경하지 않고도 구현을 수정할 수 있었습니다. `BankAccount` 클래스와 `Transaction` 클래스 모두 코드에서 이러한 개념을 설명하는 데 필요한 구성 요소의 캡슐화를 제공합니다.
+
+이 튜토리얼에서는 상속과 다형성을 사용하여 새로운 기능을 추가하는 애플리케이션을 확장할 것입니다. 또한, 이전 튜토리얼에서 배운 추상화 및 캡슐화 기술을 활용하여 `BankAccount` 클래스에 기능을 추가할 것입니다.
+
+### Create different types of accounts
+
+이 프로그램을 구축한 후, 기능을 추가해 달라는 요청을 받습니다. 이 프로그램은 하나의 은행 계좌 유형이 있을 때 잘 작동합니다. 시간이 지나면서 요구가 변화하고 관련된 계좌 유형들이 요청됩니다:
+
+- 매월 말에 이자를 적립하는 이자 적립 계좌.
+- 잔액이 음수가 될 수 있는 신용 한도 계좌. 잔액이 있을 때 매월 이자 비용이 발생합니다.
+- 단일 예금으로 시작하고 오직 상환만 가능한 선불 기프트 카드 계좌. 매월 초에 한 번 리필할 수 있습니다.
+
+이 모든 계좌는 이전 튜토리얼에서 정의된 `BankAccount` 클래스와 유사합니다. 코드를 복사하여 클래스 이름을 변경하고 수정할 수도 있습니다. 이 방법은 단기적으로는 작동하겠지만 시간이 지나면서 더 많은 작업이 필요합니다. 모든 변경 사항을 영향을 받는 모든 클래스에 복사해야 합니다.
+
+대신, 이전 튜토리얼에서 생성한 `BankAccount` 클래스에서 메서드와 데이터를 상속하는 새로운 은행 계좌 유형을 생성할 수 있습니다. 이러한 새로운 클래스는 각 유형에 필요한 특정 동작으로 `BankAccount` 클래스를 확장할 수 있습니다:
+
+```csharp
+public class InterestEarningAccount : BankAccount
+{
+}
+
+public class LineOfCreditAccount : BankAccount
+{
+}
+
+public class GiftCardAccount : BankAccount
+{
+}
+```
+
+이 각 클래스는 공유 기본 클래스인 `BankAccount` 클래스에서 공유된 동작을 상속받습니다. 각 파생 클래스에서 새로운 기능과 다른 기능을 구현합니다. 이러한 파생 클래스는 이미 `BankAccount` 클래스에 정의된 모든 동작을 가지고 있습니다.
+
+각 새로운 클래스를 다른 소스 파일에 생성하는 것이 좋은 방법입니다. Visual Studio에서 프로젝트를 마우스 오른쪽 버튼으로 클릭하고, 클래스를 추가하여 새 파일에 새 클래스를 추가할 수 있습니다. Visual Studio Code에서는 파일을 선택한 다음 새로 만들기를 선택하여 새 소스 파일을 만듭니다. 두 도구 모두에서 파일 이름을 클래스와 일치하도록 지정하세요: `InterestEarningAccount.cs`, `LineOfCreditAccount.cs`, `GiftCardAccount.cs`.
+
+위의 예제와 같이 클래스를 생성하면, 파생 클래스가 모두 컴파일되지 않는다는 것을 알 수 있습니다. 생성자는 객체를 초기화하는 역할을 합니다. 파생 클래스 생성자는 파생 클래스를 초기화하고 파생 클래스에 포함된 기본 클래스 객체를 초기화하는 방법을 제공해야 합니다. 올바른 초기화는 보통 추가 코드 없이 일어납니다. `BankAccount` 클래스는 다음 시그니처를 가진 공개 생성자를 선언합니다:
+
+```csharp
+public BankAccount(string name, decimal initialBalance)
+```
+
+생성자를 직접 정의할 때 컴파일러는 기본 생성자를 생성하지 않습니다. 이는 각 파생 클래스가 명시적으로 이 생성자를 호출해야 함을 의미합니다. 기본 클래스 생성자에 인수를 전달할 수 있는 생성자를 선언합니다. 다음 코드는 `InterestEarningAccount`의 생성자를 보여줍니다:
+
+```csharp
+public InterestEarningAccount(string name, decimal initialBalance) : base(name, initialBalance)
+{
+}
+```
+
+이 새로운 생성자의 매개변수는 기본 클래스 생성자의 매개변수 타입과 이름을 일치시킵니다. `: base()` 구문을 사용하여 기본 클래스 생성자를 호출함을 나타냅니다. 일부 클래스는 여러 생성자를 정의하며, 이 구문을 통해 호출할 기본 클래스 생성자를 선택할 수 있습니다. 생성자를 업데이트한 후 각 파생 클래스의 코드를 개발할 수 있습니다. 새로운 클래스의 요구 사항은 다음과 같이 설명할 수 있습니다:
+
+**이자 적립 계좌**:
+- 월말 잔액의 2%가 적립됩니다.
+
+**신용 한도 계좌**:
+- 잔액이 음수가 될 수 있지만 절대값이 신용 한도를 초과할 수 없습니다.
+- 월말 잔액이 0이 아니면 이자 비용이 발생합니다.
+- 신용 한도를 초과하는 인출마다 수수료가 부과됩니다.
+
+**기프트 카드 계좌**:
+- 매월 말일에 지정된 금액으로 한 번 리필할 수 있습니다.
+
+이 세 가지 계좌 유형 모두 월말에 수행되는 작업이 있다는 것을 알 수 있습니다. 하지만 각 계좌 유형은 다른 작업을 수행합니다. 이 코드를 구현하기 위해 다형성을 사용합니다. `BankAccount` 클래스에 단일 가상 메서드를 만드세요:
+
+```csharp
+public virtual void PerformMonthEndTransactions() { }
+```
+
+위의 코드는 파생 클래스가 다른 구현을 제공할 수 있도록 기본 클래스에 메서드를 선언하는 방법을 보여줍니다. 가상 메서드는 모든 파생 클래스가 재구현할 수 있는 메서드입니다. 파생 클래스는 `override` 키워드를 사용하여 새 구현을 정의합니다. 일반적으로 이를 "기본 클래스 구현을 재정의한다"고 합니다. `virtual` 키워드는 파생 클래스가 동작을 재정의할 수 있음을 명시합니다. 또한, 파생 클래스가 동작을 재정의해야 하는 추상 메서드를 선언할 수도 있습니다. 기본 클래스는 추상 메서드에 대한 구현을 제공하지 않습니다. 이제 만든 두 개의 새로운 클래스에 대한 구현을 정의해야 합니다. `InterestEarningAccount`부터 시작합니다:
+
+```csharp
+public override void PerformMonthEndTransactions()
+{
+    if (Balance > 500m)
+    {
+        decimal interest = Balance * 0.02m;
+        MakeDeposit(interest, DateTime.Now, "apply monthly interest");
+    }
+}
+```
+
+다음 코드를 `LineOfCreditAccount`에 추가합니다. 이 코드는 잔액을 부정으로 만들어 계좌에서 이자를 계산하여 인출합니다:
+
+```csharp
+public override void PerformMonthEndTransactions()
+{
+    if (Balance < 0)
+    {
+        // 잔액을 부정으로 만들어 긍정적인 이자 비용을 계산:
+        decimal interest = -Balance * 0.07m;
+        MakeWithdrawal(interest, DateTime.Now, "Charge monthly interest");
+    }
+}
+```
+
+`GiftCardAccount` 클래스는 월말 기능을 구현하기 위해 두 가지 변경이 필요합니다. 먼저, 생성자를 수정하여 매월 추가할 금액을 선택적으로 포함합니다:
+
+```csharp
+private readonly decimal _monthlyDeposit = 0m;
+
+public GiftCardAccount(string name, decimal initialBalance, decimal monthlyDeposit = 0) : base(name, initialBalance)
+    => _monthlyDeposit = monthlyDeposit;
+```
+
+생성자는 `monthlyDeposit` 값에 대해 기본값을 제공하므로 호출자는 매월 예금이 없을 때 0을 생략할 수 있습니다. 다음으로, 생성자에서 0이 아닌 값으로 설정된 경우 월말 예금을 추가하도록 `PerformMonthEndTransactions` 메서드를 재정의합니다:
+
+```csharp
+public override void PerformMonthEndTransactions()
+{
+    if (_monthlyDeposit != 0)
+    {
+        MakeDeposit(_monthlyDeposit, DateTime.Now, "Add monthly deposit");
+    }
+}
+```
+
+`override`는 생성자에서 설정된 월말 예금을 적용합니다. `GiftCardAccount`와 `InterestEarningAccount`의 변경 사항을 테스트하기 위해 `Main` 메서드에 다음 코드를 추가합니다:
+
+```csharp
+var giftCard = new GiftCardAccount("gift card", 100, 50);
+giftCard.MakeWithdrawal(20, DateTime.Now, "get expensive coffee");
+giftCard.MakeWithdrawal(50, DateTime.Now, "buy groceries");
+giftCard.PerformMonthEndTransactions();
+// 추가 예금을 할 수 있습니다:
+giftCard.MakeDeposit(27.50m, DateTime.Now, "add some additional spending money");
+Console.WriteLine(giftCard.GetAccountHistory());
+
+var savings = new InterestEarningAccount("savings account", 10000);
+savings.MakeDeposit(750, DateTime.Now, "save some money");
+savings.MakeDeposit(1250, DateTime.Now, "Add more savings");
+savings.MakeWithdrawal(250, DateTime.Now, "Needed to pay monthly bills");
+savings.PerformMonthEndTransactions();
+Console.WriteLine(savings.GetAccountHistory());
+```
+
+결과를 확인하세요. 이제 `LineOfCreditAccount`에 대한 유사한 테스트 코드를 추가하세요:
+
+```csharp
+var lineOfCredit = new LineOfCreditAccount("line of credit", 0);
+// 얼마나 많이 빌리는 것이 너무 많습니까?
+lineOfCredit.MakeWithdrawal(1000m, DateTime.Now, "Take out monthly advance");
+lineOfCredit.MakeDeposit(50m, DateTime.Now, "Pay back small amount");
+lineOfCredit.MakeWithdrawal(5000m, DateTime.Now, "Emergency funds for repairs");
+lineOfCredit.MakeDeposit(150m, DateTime.Now, "Partial restoration on repairs");
+lineOfCredit.PerformMonthEndTransactions();
+Console.WriteLine(lineOfCredit.GetAccountHistory());
+```
+
+위 코드를 추가하고 프로그램을 실행하면 다음과 같은 오류를 볼 수 있습니다:
+
+```plaintext
+Unhandled exception. System.ArgumentOutOfRangeException: Amount of deposit must be positive (Parameter 'amount')
+   at OOProgramming.BankAccount.MakeDeposit(Decimal amount, DateTime date, String note) in BankAccount.cs:line 42
+   at OOProgramming.BankAccount..ctor(String name, Decimal initialBalance) in BankAccount.cs:line 31
+   at OOProgramming.LineOfCreditAccount..ctor(String name, Decimal initialBalance) in LineOfCreditAccount.cs:line 9
+   at OOProgramming.Program.Main(String[] args) in Program.cs:line 29
+```
+
+이 오류는 초기 잔액이 0보다 작을 수 없기 때문에 발생합니다. `LineOfCreditAccount`의 생성자에서 이를 수정해야 합니다.
+
+```
+참고
+
+실제 출력에는 프로젝트가 있는 폴더로의 전체 경로가 포함됩니다. 간결함을 위해 폴더 이름은 생략되었습니다. 또한, 코드 형식에 따라 줄 번호가 약간 다를 수 있습니다.
+```
+
+이 코드는 `BankAccount` 클래스가 초기 잔액이 0보다 커야 한다고 가정하기 때문에 실패합니다. `BankAccount` 클래스에 내재된 또 다른 가정은 잔액이 음수가 될 수 없다는 것입니다. 대신, 계좌를 초과 인출하는 모든 인출은 거부됩니다. 이 두 가지 가정은 변경되어야 합니다. 신용 한도 계좌는 0에서 시작하며, 일반적으로 음수 잔액을 가집니다. 또한, 고객이 너무 많은 돈을 빌리면 수수료가 발생합니다. 거래는 승인되지만 더 많은 비용이 듭니다. 첫 번째 규칙은 `BankAccount` 생성자에 최소 잔액을 지정하는 선택적 인수를 추가하여 구현할 수 있습니다. 기본값은 0입니다. 두 번째 규칙은 파생 클래스가 기본 알고리즘을 수정할 수 있는 메커니즘을 필요로 합니다. 기본 클래스가 오버드래프트가 발생했을 때 파생 타입에 무슨 일이 일어나야 하는지 "묻는" 것과 같습니다. 기본 동작은 예외를 던져 거래를 거부하는 것입니다.
+
+선택적 `minimumBalance` 매개변수를 포함하는 두 번째 생성자를 추가해 봅시다. 이 새로운 생성자는 기존 생성자가 수행하는 모든 작업을 수행합니다. 또한 최소 잔액 속성을 설정합니다. 기존 생성자의 본문을 복사할 수 있지만, 이는 미래에 두 군데를 변경해야 함을 의미합니다. 대신, 생성자 체이닝을 사용하여 한 생성자가 다른 생성자를 호출하도록 할 수 있습니다. 다음 코드는 두 생성자와 새로운 추가 필드를 보여줍니다:
+
+```csharp
+private readonly decimal _minimumBalance;
+
+public BankAccount(string name, decimal initialBalance) : this(name, initialBalance, 0) { }
+
+public BankAccount(string name, decimal initialBalance, decimal minimumBalance)
+{
+    Number = s_accountNumberSeed.ToString();
+    s_accountNumberSeed++;
+
+    Owner = name;
+    _minimumBalance = minimumBalance;
+    if (initialBalance > 0)
+        MakeDeposit(initialBalance, DateTime.Now, "Initial balance");
+}
+```
+
+위의 코드는 두 가지 새로운 기술을 보여줍니다. 첫째, `minimumBalance` 필드는 `readonly`로 표시됩니다. 이는 객체가 생성된 후 값이 변경될 수 없음을 의미합니다. `BankAccount`가 생성되면, `minimumBalance`는 변경될 수 없습니다. 둘째, 두 개의 매개변수를 받는 생성자는 `: this(name, initialBalance, 0) { }`로 구현됩니다. `: this()` 표현식은 세 개의 매개변수를 받는 다른 생성자를 호출합니다. 이 기술을 통해 클라이언트 코드가 여러 생성자 중 하나를 선택할 수 있지만 객체 초기화에 단일 구현을 가질 수 있습니다.
+
+이 구현은 초기 잔액이 0보다 클 때만 `MakeDeposit`을 호출합니다. 이는 예금이 양수여야 한다는 규칙을 유지하면서도 신용 계좌를 0 잔액으로 열 수 있게 합니다.
+
+이제 `BankAccount` 클래스에 최소 잔액에 대한 읽기 전용 필드가 생겼으므로, 마지막 변경은 `MakeWithdrawal` 메서드에서 하드코딩된 0을 `minimumBalance`로 변경하는 것입니다:
+
+```csharp
+if (Balance - amount < _minimumBalance)
+```
+
+`BankAccount` 클래스를 확장한 후, `LineOfCreditAccount` 생성자를 수정하여 새로운 기본 생성자를 호출하도록 할 수 있습니다. 다음 코드를 참조하세요:
+
+```csharp
+public LineOfCreditAccount(string name, decimal initialBalance, decimal creditLimit) : base(name, initialBalance, -creditLimit)
+{
+}
+```
+
+`LineOfCreditAccount` 생성자는 `creditLimit` 매개변수의 부호를 변경하여 `minimumBalance` 매개변수의 의미와 일치시킵니다.
+
+### Different overdraft rules
+
+마지막으로 추가할 기능은 `LineOfCreditAccount`가 거래를 거부하는 대신 신용 한도를 초과할 때 수수료를 부과할 수 있게 하는 것입니다.
+
+한 가지 방법은 필요한 동작을 구현하는 가상 함수를 정의하는 것입니다. `BankAccount` 클래스는 `MakeWithdrawal` 메서드를 두 개의 메서드로 리팩터링합니다. 새로운 메서드는 인출로 인해 잔액이 최소 잔액 아래로 내려갈 때 지정된 동작을 수행합니다. 기존의 `MakeWithdrawal` 메서드는 다음 코드와 같습니다:
+
+```csharp
+public void MakeWithdrawal(decimal amount, DateTime date, string note)
+{
+    if (amount <= 0)
+    {
+        throw new ArgumentOutOfRangeException(nameof(amount), "Amount of withdrawal must be positive");
+    }
+    if (Balance - amount < _minimumBalance)
+    {
+        throw new InvalidOperationException("Not sufficient funds for this withdrawal");
+    }
+    var withdrawal = new Transaction(-amount, date, note);
+    _allTransactions.Add(withdrawal);
+}
+```
+
+다음 코드로 교체하세요:
+
+```csharp
+public void MakeWithdrawal(decimal amount, DateTime date, string note)
+{
+    if (amount <= 0)
+    {
+        throw new ArgumentOutOfRangeException(nameof(amount), "Amount of withdrawal must be positive");
+    }
+    Transaction? overdraftTransaction = CheckWithdrawalLimit(Balance - amount < _minimumBalance);
+    Transaction? withdrawal = new(-amount, date, note);
+    _allTransactions.Add(withdrawal);
+    if (overdraftTransaction != null)
+        _allTransactions.Add(overdraftTransaction);
+}
+
+protected virtual Transaction? CheckWithdrawalLimit(bool isOverdrawn)
+{
+    if (isOverdrawn)
+    {
+        throw new InvalidOperationException("Not sufficient funds for this withdrawal");
+    }
+    else
+    {
+        return default;
+    }
+}
+```
+
+추가된 메서드는 `protected`로, 파생 클래스에서만 호출될 수 있습니다. 이 선언은 다른 클라이언트가 이 메서드를 호출하는 것을 방지합니다. 또한 가상 메서드로, 파생 클래스가 동작을 변경할 수 있습니다. 반환 타입은 `Transaction?`입니다. `?` 표시는 메서드가 null을 반환할 수 있음을 나타냅니다. 인출 한도를 초과할 때 수수료를 부과하기 위해 `LineOfCreditAccount`에 다음 구현을 추가하세요:
+
+```csharp
+protected override Transaction? CheckWithdrawalLimit(bool isOverdrawn) =>
+    isOverdrawn
+    ? new Transaction(-20, DateTime.Now, "Apply overdraft fee")
+    : default;
+```
+
+재정의된 메서드는 계좌가 초과 인출되었을 때 수수료 거래를 반환합니다. 인출이 한도를 초과하지 않으면 메서드는 null 거래를 반환합니다. 이는 수수료가 없음을 나타냅니다. 다음 코드를 `Program` 클래스의 `Main` 메서드에 추가하여 이러한 변경 사항을 테스트하세요:
+
+```csharp
+var lineOfCredit = new LineOfCreditAccount("line of credit", 0, 2000);
+// 얼마나 많이 빌리는 것이 너무 많습니까?
+lineOfCredit.MakeWithdrawal(1000m, DateTime.Now, "Take out monthly advance");
+lineOfCredit.MakeDeposit(50m, DateTime.Now, "Pay back small amount");
+lineOfCredit.MakeWithdrawal(5000m, DateTime.Now, "Emergency funds for repairs");
+lineOfCredit.MakeDeposit(150m, DateTime.Now, "Partial restoration on repairs");
+lineOfCredit.PerformMonthEndTransactions();
+Console.WriteLine(lineOfCredit.GetAccountHistory());
+```
+
+프로그램을 실행하고 결과를 확인하세요.
+
+### Summary
+
+문제에 봉착한 경우, GitHub 저장소에서 이 튜토리얼의 소스를 확인할 수 있습니다.
+
+이 튜토리얼은 객체 지향 프로그래밍에서 사용되는 여러 기술을 시연했습니다:
+
+- 각기 다른 계좌 유형에 대해 클래스를 정의할 때 추상화를 사용했습니다. 이러한 클래스는 해당 유형의 계좌에 대한 동작을 설명했습니다.
+- 각 클래스의 많은 세부 사항을 비공개로 유지할 때 캡슐화를 사용했습니다.
+- `BankAccount` 클래스에서 이미 생성된 구현을 활용하여 코드를 절약할 때 상속을 사용했습니다.
+- 파생 클래스가 특정 계좌 유형에 대한 동작을 생성하기 위해 재정의할 수 있는 가상 메서드를 생성할 때 다형성을 사용했습니다.
+
+---
+## Inheritance in C# and .NET
+
+이 자습서에서는 C#의 상속에 대해 소개합니다. 상속은 특정 기능(데이터 및 동작)을 제공하는 기본 클래스를 정의하고 해당 기능을 상속하거나 재정의하는 파생 클래스를 정의할 수 있는 개체 지향 프로그래밍 언어의 기능입니다.
+
+### Running the examples
+
+이 튜토리얼의 예제를 만들고 실행하려면 명령줄에서 `dotnet` 유틸리티를 사용합니다. 각 예제에 대해 다음 단계를 따르세요:
+
+1. 예제를 저장할 디렉터리를 만듭니다.
+2. 명령 프롬프트에서 `dotnet new console` 명령을 입력하여 새 .NET Core 프로젝트를 만듭니다.
+3. 예제의 코드를 복사하여 코드 편집기에 붙여 넣습니다.
+4. 명령줄에서 `dotnet restore` 명령을 입력하여 프로젝트의 종속성을 로드하거나 복원합니다.
+
+`dotnet restore`를 명시적으로 실행할 필요는 없습니다. 이는 `dotnet new`, `dotnet build`, `dotnet run`, `dotnet test`, `dotnet publish`, `dotnet pack`과 같이 복원이 필요한 모든 명령에 의해 암시적으로 실행되기 때문입니다. 암시적 복원을 비활성화하려면 `--no-restore` 옵션을 사용하세요.
+
+`dotnet restore` 명령은 Azure DevOps Services의 지속적 통합 빌드 또는 복원이 발생할 시기를 명시적으로 제어해야 하는 빌드 시스템과 같은 특정 시나리오에서 여전히 유용합니다.
+
+NuGet 피드를 관리하는 방법에 대한 정보는 `dotnet restore` 문서를 참조하세요.
+
+예제를 컴파일하고 실행하려면 `dotnet run` 명령을 입력하세요.
+
+### Background: What is inheritance?
+
+상속은 객체 지향 프로그래밍의 기본적인 속성 중 하나입니다. 상속을 통해 자식 클래스는 부모 클래스의 동작을 재사용(상속), 확장 또는 수정할 수 있습니다. 멤버가 상속되는 클래스를 기본 클래스라고 하고, 기본 클래스의 멤버를 상속하는 클래스를 파생 클래스라고 합니다.
+
+C#과 .NET은 단일 상속만을 지원합니다. 즉, 클래스는 단 하나의 클래스만 상속받을 수 있습니다. 그러나 상속은 전이적이어서 여러 타입 집합에 대한 상속 계층 구조를 정의할 수 있습니다. 다시 말해, 타입 D는 타입 C를 상속받고, 타입 C는 타입 B를 상속받고, 타입 B는 기본 클래스 타입 A를 상속받을 수 있습니다. 상속이 전이적이기 때문에, 타입 A의 멤버는 타입 D에서도 사용할 수 있습니다.
+
+모든 기본 클래스의 멤버가 파생 클래스에 의해 상속되는 것은 아닙니다. 다음 멤버는 상속되지 않습니다:
+
+- 정적 생성자: 클래스의 정적 데이터를 초기화합니다.
+- 인스턴스 생성자: 클래스의 새 인스턴스를 생성할 때 호출됩니다. 각 클래스는 자체 생성자를 정의해야 합니다.
+- 소멸자: 런타임의 가비지 컬렉터에 의해 클래스의 인스턴스를 소멸시키기 위해 호출됩니다.
+
+기본 클래스의 다른 모든 멤버가 파생 클래스에 의해 상속되지만, 그것들이 보이는지는 접근성에 따라 달라집니다. 멤버의 접근성은 파생 클래스에서의 가시성에 다음과 같이 영향을 미칩니다:
+
+- **private 멤버**는 기본 클래스에 중첩된 파생 클래스에서만 보입니다. 그렇지 않으면 파생 클래스에서 보이지 않습니다. 다음 예제에서 `A.B`는 `A`에서 파생된 중첩 클래스이며, `C`는 `A`에서 파생됩니다. `private A._value` 필드는 `A.B`에서 보입니다. 그러나 주석을 제거하고 `C.GetValue` 메서드를 컴파일하려고 하면 컴파일러 오류 CS0122: "'A._value'는 보호 수준 때문에 접근할 수 없습니다."가 발생합니다.
+
+```csharp
+public class A
+{
+    private int _value = 10;
+
+    public class B : A
+    {
+        public int GetValue()
+        {
+            return _value;
+        }
+    }
+}
+
+public class C : A
+{
+    //    public int GetValue()
+    //    {
+    //        return _value;
+    //    }
+}
+
+public class AccessExample
+{
+    public static void Main(string[] args)
+    {
+        var b = new A.B();
+        Console.WriteLine(b.GetValue());
+    }
+}
+// 이 예제는 다음 출력을 표시합니다:
+//       10
+```
+
+- **protected 멤버**는 파생 클래스에서만 보입니다.
+- **internal 멤버**는 기본 클래스와 동일한 어셈블리에 있는 파생 클래스에서만 보입니다. 기본 클래스와 다른 어셈블리에 있는 파생 클래스에서는 보이지 않습니다.
+- **public 멤버**는 파생 클래스에서 보이며, 파생 클래스의 공개 인터페이스의 일부입니다. 상속된 public 멤버는 파생 클래스에서 정의된 것처럼 호출할 수 있습니다. 다음 예제에서, 클래스 `A`는 `Method1`이라는 메서드를 정의하고, 클래스 `B`는 클래스 `A`를 상속받습니다. 예제는 마치 `Method1`이 `B`의 인스턴스 메서드인 것처럼 호출합니다.
+
+```csharp
+public class A
+{
+    public void Method1()
+    {
+        // 메서드 구현.
+    }
+}
+
+public class B : A
+{ }
+
+public class Example
+{
+    public static void Main()
+    {
+        B b = new ();
+        b.Method1();
+    }
+}
+```
+
+파생 클래스는 대체 구현을 제공하여 상속된 멤버를 재정의할 수도 있습니다. 멤버를 재정의할 수 있으려면, 기본 클래스에서 해당 멤버가 `virtual` 키워드로 표시되어야 합니다. 기본적으로 기본 클래스 멤버는 `virtual`로 표시되지 않으며 재정의할 수 없습니다. 다음 예제와 같이 `virtual`이 아닌 멤버를 재정의하려고 하면 컴파일러 오류 CS0506: "<member>는 virtual, abstract 또는 override로 표시되지 않았기 때문에 상속된 멤버 <member>를 재정의할 수 없습니다."가 발생합니다.
+
+```csharp
+public class A
+{
+    public void Method1()
+    {
+        // 무언가를 수행합니다.
+    }
+}
+
+public class B : A
+{
+    public override void Method1() // CS0506을 발생시킵니다.
+    {
+        // 다른 작업을 수행합니다.
+    }
+}
+```
+
+일부 경우, 파생 클래스는 기본 클래스 구현을 재정의해야 합니다. `abstract` 키워드로 표시된 기본 클래스 멤버는 파생 클래스가 이를 재정의하도록 요구합니다. 다음 예제를 컴파일하려고 하면 컴파일러 오류 CS0534, "<class>는 상속된 추상 멤버 <member>를 구현하지 않습니다."가 발생합니다. 이는 클래스 `B`가 `A.Method1`에 대한 구현을 제공하지 않기 때문입니다.
+
+```csharp
+public abstract class A
+{
+    public abstract void Method1();
+}
+
+public class B : A // CS0534를 발생시킵니다.
+{
+    public void Method3()
+    {
+        // 무언가를 수행합니다.
+    }
+}
+```
+
+상속은 클래스와 인터페이스에만 적용됩니다. 다른 타입 범주(구조체, 대리자, 열거형)는 상속을 지원하지 않습니다. 이러한 규칙 때문에 다음 예제와 같은 코드를 컴파일하려고 하면 컴파일러 오류 CS0527: "인터페이스 목록의 'ValueType' 타입은 인터페이스가 아닙니다."가 발생합니다. 이 오류 메시지는 구조체가 구현하는 인터페이스를 정의할 수는 있지만, 상속은 지원되지 않는다는 것을 나타냅니다.
+
+```csharp
+public struct ValueStructure : ValueType // CS0527을 발생시킵니다.
+{
+}
+```
+
+### Implicit inheritance
+
+단일 상속을 통해 상속받는 모든 타입 외에도, .NET 타입 시스템의 모든 타입은 암시적으로 `Object` 또는 `Object`에서 파생된 타입으로부터 상속받습니다. `Object`의 공통 기능은 모든 타입에서 사용할 수 있습니다.
+
+암시적 상속이 의미하는 바를 이해하기 위해, 단순히 빈 클래스 정의인 새로운 클래스 `SimpleClass`를 정의해 보겠습니다:
+
+```csharp
+public class SimpleClass
+{ }
+```
+
+그런 다음 리플렉션을 사용하여 (`리플렉션을 통해 타입의 메타데이터를 검사하여 해당 타입에 대한 정보를 얻을 수 있습니다`) `SimpleClass` 타입에 속하는 멤버 목록을 가져올 수 있습니다. `SimpleClass` 클래스에 아무 멤버도 정의하지 않았지만, 예제의 출력은 실제로 9개의 멤버가 있음을 나타냅니다. 이 멤버 중 하나는 `SimpleClass` 타입에 대해 C# 컴파일러가 자동으로 제공하는 매개변수가 없는(또는 기본) 생성자입니다. 나머지 8개는 .NET 타입 시스템의 모든 클래스와 인터페이스가 궁극적으로 암시적으로 상속받는 `Object`의 멤버입니다.
+
+```csharp
+using System.Reflection;
+
+public class SimpleClassExample
+{
+    public static void Main()
+    {
+        Type t = typeof(SimpleClass);
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                             BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
+        MemberInfo[] members = t.GetMembers(flags);
+        Console.WriteLine($"Type {t.Name} has {members.Length} members: ");
+        foreach (MemberInfo member in members)
+        {
+            string access = "";
+            string stat = "";
+            var method = member as MethodBase;
+            if (method != null)
+            {
+                if (method.IsPublic)
+                    access = " Public";
+                else if (method.IsPrivate)
+                    access = " Private";
+                else if (method.IsFamily)
+                    access = " Protected";
+                else if (method.IsAssembly)
+                    access = " Internal";
+                else if (method.IsFamilyOrAssembly)
+                    access = " Protected Internal ";
+                if (method.IsStatic)
+                    stat = " Static";
+            }
+            string output = $"{member.Name} ({member.MemberType}): {access}{stat}, Declared by {member.DeclaringType}";
+            Console.WriteLine(output);
+        }
+    }
+}
+// 예제는 다음 출력을 표시합니다:
+//	Type SimpleClass has 9 members:
+//	ToString (Method):  Public, Declared by System.Object
+//	Equals (Method):  Public, Declared by System.Object
+//	Equals (Method):  Public Static, Declared by System.Object
+//	ReferenceEquals (Method):  Public Static, Declared by System.Object
+//	GetHashCode (Method):  Public, Declared by System.Object
+//	GetType (Method):  Public, Declared by System.Object
+//	Finalize (Method):  Internal, Declared by System.Object
+//	MemberwiseClone (Method):  Internal, Declared by System.Object
+//	.ctor (Constructor):  Public, Declared by SimpleClass
+```
+
+`Object` 클래스의 암시적 상속으로 인해 이러한 메서드는 `SimpleClass` 클래스에서 사용할 수 있습니다:
+
+- `public` `ToString` 메서드: `SimpleClass` 객체를 문자열 표현으로 변환하며, 완전히 정규화된 타입 이름을 반환합니다. 이 경우, `ToString` 메서드는 "SimpleClass" 문자열을 반환합니다.
+- 두 객체의 동등성을 테스트하는 세 가지 메서드: `public` 인스턴스 `Equals(Object)` 메서드, `public` `static` `Equals(Object, Object)` 메서드, `public` `static` `ReferenceEquals(Object, Object)` 메서드. 기본적으로 이러한 메서드는 참조 동등성을 테스트합니다. 즉, 두 객체 변수가 동일한 객체를 참조해야만 동등합니다.
+- `public` `GetHashCode` 메서드: 타입의 인스턴스를 해시된 컬렉션에서 사용할 수 있도록 값을 계산합니다.
+- `public` `GetType` 메서드: `SimpleClass` 타입을 나타내는 `Type` 객체를 반환합니다.
+- `protected` `Finalize` 메서드: 객체의 메모리가 가비지 컬렉터에 의해 회수되기 전에 관리되지 않는 리소스를 해제하도록 설계되었습니다.
+- `protected` `MemberwiseClone` 메서드: 현재 객체의 얕은 복제본을 생성합니다.
+
+암시적 상속 덕분에 `SimpleClass` 객체에서 상속된 모든 멤버를 `SimpleClass` 클래스에 정의된 멤버처럼 호출할 수 있습니다. 예를 들어, 다음 예제는 `SimpleClass`가 `Object`로부터 상속받은 `SimpleClass.ToString` 메서드를 호출합니다:
+
+```csharp
+public class EmptyClass
+{ }
+
+public class ClassNameExample
+{
+    public static void Main()
+    {
+        EmptyClass sc = new();
+        Console.WriteLine(sc.ToString());
+    }
+}
+// 예제는 다음 출력을 표시합니다:
+//        EmptyClass
+```
+
+다음 표는 C#에서 생성할 수 있는 타입의 범주와 해당 타입이 암시적으로 상속받는 타입을 나열합니다. 각 기본 타입은 암시적으로 파생된 타입에 다른 집합의 멤버를 제공합니다.
+
+| 타입 범주 | 암시적으로 상속받는 타입 |
+| --------- | ---------------------- |
+| 클래스     | Object                 |
+| 구조체     | ValueType, Object      |
+| 열거형     | Enum, ValueType, Object|
+| 대리자     | MulticastDelegate, Delegate, Object |
+
+### Inheritance and an "is a" relationship
+
+일반적으로 상속은 기본 클래스와 하나 이상의 파생 클래스 간의 "is a" 관계를 표현하는 데 사용됩니다. 이때 파생 클래스는 기본 클래스의 특수화된 버전입니다. 파생 클래스는 기본 클래스의 한 유형입니다. 예를 들어, `Publication` 클래스는 모든 종류의 출판물을 나타내며, `Book` 및 `Magazine` 클래스는 특정 유형의 출판물을 나타냅니다.
+
+```
+참고
+
+클래스나 구조체는 하나 이상의 인터페이스를 구현할 수 있습니다. 인터페이스 구현은 단일 상속의 해결 방법이나 구조체와 상속을 함께 사용하는 방법으로 자주 제시되지만, 상속과는 다른 관계("can do" 관계)를 표현하기 위한 것입니다. 인터페이스는 동등성 테스트, 객체 비교 또는 정렬, 문화적으로 민감한 구문 분석 및 형식 지정과 같은 기능의 하위 집합을 정의하며, 이는 인터페이스가 구현하는 타입에서 사용할 수 있습니다.
+```
+
+"is a"는 또한 타입과 해당 타입의 특정 인스턴스화 간의 관계를 표현합니다. 다음 예제에서 `Automobile`은 세 개의 고유한 읽기 전용 속성을 가진 클래스입니다: `Make`는 자동차 제조업체, `Model`은 자동차의 종류, `Year`는 제조 연도입니다. `Automobile` 클래스는 속성 값에 할당되는 인수를 가진 생성자를 가지고 있으며, `Object.ToString` 메서드를 재정의하여 `Automobile` 클래스가 아닌 `Automobile` 인스턴스를 고유하게 식별하는 문자열을 생성합니다.
+
+```csharp
+public class Automobile
+{
+    public Automobile(string make, string model, int year)
+    {
+        if (make == null)
+            throw new ArgumentNullException(nameof(make), "The make cannot be null.");
+        else if (string.IsNullOrWhiteSpace(make))
+            throw new ArgumentException("make cannot be an empty string or have space characters only.");
+        Make = make;
+
+        if (model == null)
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        else if (string.IsNullOrWhiteSpace(model))
+            throw new ArgumentException("model cannot be an empty string or have space characters only.");
+        Model = model;
+
+        if (year < 1857 || year > DateTime.Now.Year + 2)
+            throw new ArgumentException("The year is out of range.");
+        Year = year;
+    }
+
+    public string Make { get; }
+
+    public string Model { get; }
+
+    public int Year { get; }
+
+    public override string ToString() => $"{Year} {Make} {Model}";
+}
+```
+
+이 경우, 특정 자동차 제조사와 모델을 나타내기 위해 상속을 사용하는 것은 적절하지 않습니다. 예를 들어, Packard Motor Car Company에서 제조한 자동차를 나타내기 위해 `Packard` 타입을 정의할 필요는 없습니다. 대신, 다음 예제와 같이 적절한 값을 클래스 생성자에 전달하여 `Automobile` 객체를 생성할 수 있습니다.
+
+```csharp
+using System;
+
+public class Example
+{
+    public static void Main()
+    {
+        var packard = new Automobile("Packard", "Custom Eight", 1948);
+        Console.WriteLine(packard);
+    }
+}
+// 이 예제는 다음 출력을 표시합니다:
+//        1948 Packard Custom Eight
+```
+
+상속을 기반으로 한 "is-a" 관계는 기본 클래스에 추가 멤버를 추가하거나 기본 클래스에 없는 추가 기능이 필요한 파생 클래스에 가장 잘 적용됩니다.
+
+### Designing the base class and derived classes
+
+기본 클래스와 그 파생 클래스를 설계하는 과정을 살펴봅시다. 이 섹션에서는 `Publication`이라는 기본 클래스를 정의할 것입니다. `Publication` 클래스는 책, 잡지, 신문, 저널, 기사 등 모든 종류의 출판물을 나타냅니다. 또한 `Publication`을 상속받는 `Book` 클래스를 정의할 것입니다. 이 예제를 확장하여 `Magazine`, `Journal`, `Newspaper`, `Article`과 같은 다른 파생 클래스를 정의할 수도 있습니다.
+
+#### The base Publication class
+
+`Publication` 클래스와 그 파생 클래스를 설계하는 과정에 대해 살펴보겠습니다. 이 섹션에서는 `Publication`이라는 기본 클래스를 정의할 것입니다. 이 클래스는 책, 잡지, 신문, 저널, 기사 등 모든 종류의 출판물을 나타냅니다. 또한 `Publication`을 상속받는 `Book` 클래스를 정의할 것입니다. 이 예제를 확장하여 `Magazine`, `Journal`, `Newspaper`, `Article`과 같은 다른 파생 클래스를 정의할 수도 있습니다.
+
+`Publication` 클래스를 설계할 때 몇 가지 설계 결정을 내려야 합니다:
+
+- 기본 `Publication` 클래스에 어떤 멤버를 포함할지, 그리고 `Publication` 멤버가 메서드 구현을 제공할지, 아니면 `Publication`이 파생 클래스의 템플릿 역할을 하는 추상 기본 클래스인지 여부를 결정해야 합니다.
+
+이 경우 `Publication` 클래스는 메서드 구현을 제공합니다. 추상 기본 클래스와 그 파생 클래스를 설계하는 섹션에는 파생 클래스가 재정의해야 하는 메서드를 정의하기 위해 추상 기본 클래스를 사용하는 예제가 포함되어 있습니다. 파생 클래스는 파생 타입에 적합한 임의의 구현을 제공할 수 있습니다.
+
+코드 재사용 능력(즉, 여러 파생 클래스가 기본 클래스 메서드의 선언과 구현을 공유하고 이를 재정의할 필요가 없음)은 비추상 기본 클래스의 장점입니다. 따라서 일부 또는 대부분의 특수화된 `Publication` 타입에서 코드가 공유될 가능성이 있는 멤버를 `Publication`에 추가해야 합니다. 기본 클래스 구현을 효율적으로 제공하지 못하면 기본 클래스에 단일 구현이 아닌, 파생 클래스에서 거의 동일한 멤버 구현을 제공해야 합니다. 여러 위치에 중복된 코드를 유지해야 할 필요는 버그의 잠재적 원인이 됩니다.
+
+코드 재사용을 최대화하고 논리적이고 직관적인 상속 계층 구조를 만들기 위해, 모든 출판물 또는 대부분의 출판물에 공통적인 데이터와 기능만 `Publication` 클래스에 포함해야 합니다. 그런 다음, 파생 클래스는 자신이 나타내는 특정 유형의 출판물에 고유한 멤버를 구현합니다.
+
+- 클래스 계층 구조를 어디까지 확장할지 결정합니다. 단순히 기본 클래스와 하나 이상의 파생 클래스를 사용하는 대신, 세 개 이상의 클래스 계층 구조를 개발하고 싶습니까? 예를 들어, `Publication`은 `Periodical`의 기본 클래스가 될 수 있으며, `Periodical`은 다시 `Magazine`, `Journal`, `Newspaper`의 기본 클래스가 될 수 있습니다.
+
+예제에서는 `Publication` 클래스와 단일 파생 클래스 `Book`의 작은 계층 구조를 사용합니다. 이 예제를 확장하여 `Magazine` 및 `Article`과 같은 `Publication`에서 파생된 추가 클래스를 쉽게 만들 수 있습니다.
+
+- 기본 클래스를 인스턴스화할지 여부를 결정합니다. 인스턴스화하지 않으려면 클래스에 `abstract` 키워드를 적용해야 합니다. 그렇지 않으면 `Publication` 클래스는 클래스 생성자를 호출하여 인스턴스화할 수 있습니다. `abstract` 키워드가 표시된 클래스를 클래스 생성자를 직접 호출하여 인스턴스화하려고 하면 C# 컴파일러는 오류 CS0144, "추상 클래스 또는 인터페이스의 인스턴스를 생성할 수 없습니다."를 생성합니다. 리플렉션을 사용하여 클래스를 인스턴스화하려고 하면 리플렉션 메서드는 `MemberAccessException`을 던집니다.
+
+기본적으로 기본 클래스는 클래스 생성자를 호출하여 인스턴스화할 수 있습니다. 클래스 생성자를 명시적으로 정의할 필요는 없습니다. 기본 클래스의 소스 코드에 생성자가 없으면 C# 컴파일러가 자동으로 기본(매개변수 없는) 생성자를 제공합니다.
+
+예제에서는 `Publication` 클래스를 추상 클래스로 표시하여 인스턴스화할 수 없도록 합니다. 추상 메서드가 없는 추상 클래스는 이 클래스가 여러 구체 클래스(`Book`, `Journal` 등)에서 공유되는 추상 개념을 나타냄을 의미합니다.
+
+- 파생 클래스가 특정 멤버의 기본 클래스 구현을 상속해야 하는지, 기본 클래스 구현을 재정의할 수 있는지, 또는 구현을 제공해야 하는지 여부를 결정합니다. `abstract` 키워드를 사용하여 파생 클래스가 구현을 제공하도록 강제할 수 있습니다. `virtual` 키워드를 사용하여 파생 클래스가 기본 클래스 메서드를 재정의할 수 있도록 할 수 있습니다. 기본적으로 기본 클래스에 정의된 메서드는 재정의할 수 없습니다.
+
+`Publication` 클래스에는 추상 메서드가 없지만, 클래스 자체는 추상적입니다.
+
+- 파생 클래스가 상속 계층 구조에서 최종 클래스인지 여부를 결정하고, 추가 파생 클래스의 기본 클래스로 사용할 수 없도록 합니다. 기본적으로 모든 클래스는 기본 클래스로 사용할 수 있습니다. `sealed` 키워드를 적용하여 클래스를 추가 클래스의 기본 클래스로 사용할 수 없도록 표시할 수 있습니다. `sealed` 클래스를 파생하려고 하면 컴파일러 오류 CS0509, "봉인된 타입 <typeName>에서 파생할 수 없습니다."가 발생합니다.
+
+예제에서는 파생 클래스를 `sealed`로 표시합니다.
+
+다음 예제는 `Publication` 클래스의 소스 코드와 `Publication.PublicationType` 속성에서 반환되는 `PublicationType` 열거형을 보여줍니다. `Object`에서 상속되는 멤버 외에도 `Publication` 클래스는 다음과 같은 고유한 멤버와 멤버 재정의를 정의합니다:
+
+```csharp
+public enum PublicationType { Misc, Book, Magazine, Article };
+
+public abstract class Publication
+{
+    private bool _published = false;
+    private DateTime _datePublished;
+    private int _totalPages;
+
+    public Publication(string title, string publisher, PublicationType type)
+    {
+        if (string.IsNullOrWhiteSpace(publisher))
+            throw new ArgumentException("The publisher is required.");
+        Publisher = publisher;
+
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("The title is required.");
+        Title = title;
+
+        Type = type;
+    }
+
+    public string Publisher { get; }
+
+    public string Title { get; }
+
+    public PublicationType Type { get; }
+
+    public string? CopyrightName { get; private set; }
+
+    public int CopyrightDate { get; private set; }
+
+    public int Pages
+    {
+        get { return _totalPages; }
+        set
+        {
+            if (value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value), "The number of pages cannot be zero or negative.");
+            _totalPages = value;
+        }
+    }
+
+    public string GetPublicationDate()
+    {
+        if (!_published)
+            return "NYP";
+        else
+            return _datePublished.ToString("d");
+    }
+
+    public void Publish(DateTime datePublished)
+    {
+        _published = true;
+        _datePublished = datePublished;
+    }
+
+    public void Copyright(string copyrightName, int copyrightDate)
+    {
+        if (string.IsNullOrWhiteSpace(copyrightName))
+            throw new ArgumentException("The name of the copyright holder is required.");
+        CopyrightName = copyrightName;
+
+        int currentYear = DateTime.Now.Year;
+        if (copyrightDate < currentYear - 10 || copyrightDate > currentYear + 2)
+            throw new ArgumentOutOfRangeException($"The copyright year must be between {currentYear - 10} and {currentYear + 1}");
+        CopyrightDate = copyrightDate;
+    }
+
+    public override string ToString() => Title;
+}
+```
+
+**생성자**
+
+`Publication` 클래스는 추상적이기 때문에 다음 예제와 같은 코드에서 직접 인스턴스화할 수 없습니다:
+
+```csharp
+var publication = new Publication("Tiddlywinks for Experts", "Fun and Games",
+                                  PublicationType.Book);
+```
+
+그러나 그 인스턴스 생성자는 파생 클래스 생성자에서 직접 호출할 수 있습니다. 다음은 `Book` 클래스의 소스 코드에서 보여줍니다.
+
+**출판 관련 속성 두 가지**
+
+- `Title`은 `Publication` 생성자를 호출하여 값이 제공되는 읽기 전용 `String` 속성입니다.
+- `Pages`는 출판물의 총 페이지 수를 나타내는 읽기-쓰기 `Int32` 속성입니다. 값은 `totalPages`라는 비공개 필드에 저장됩니다. 이 값은 양수여야 하며, 그렇지 않으면 `ArgumentOutOfRangeException`이 발생합니다.
+
+**출판사 관련 멤버**
+
+- 읽기 전용 속성 두 가지, `Publisher`와 `Type`. 값은 원래 `Publication` 클래스 생성자 호출에 의해 제공됩니다.
+
+**출판 관련 멤버**
+
+- 두 가지 메서드, `Publish`와 `GetPublicationDate`. 출판 날짜를 설정하고 반환합니다. `Publish` 메서드는 호출될 때 `_published` 플래그를 `true`로 설정하고 인수로 전달된 날짜를 `datePublished` 필드에 할당합니다. `GetPublicationDate` 메서드는 `_published` 플래그가 `false`이면 "NYP" 문자열을 반환하고, `true`이면 `datePublished` 필드의 값을 반환합니다.
+
+**저작권 관련 멤버**
+
+- `Copyright` 메서드는 저작권 소유자의 이름과 저작권 연도를 인수로 받아, 이를 `CopyrightName` 및 `CopyrightDate` 속성에 할당합니다.
+
+**ToString 메서드 재정의**
+
+타입이 `Object.ToString` 메서드를 재정의하지 않으면, 타입의 완전히 정규화된 이름을 반환하여 인스턴스 간의 차별화를 거의 제공하지 않습니다. `Publication` 클래스는 `Object.ToString`을 재정의하여 `Title` 속성의 값을 반환합니다.
+
+다음 그림은 기본 `Publication` 클래스와 암시적으로 상속받은 `Object` 클래스 간의 관계를 보여줍니다.
+
+![](../img/05_CSharp_기초/publication-class.jpg)
+
+#### The 'Book' class
+
+`Book` 클래스는 출판물의 특수한 유형인 책을 나타냅니다. 다음 예제는 `Book` 클래스의 소스 코드를 보여줍니다:
+
+```csharp
+using System;
+
+public sealed class Book : Publication
+{
+    public Book(string title, string author, string publisher) :
+           this(title, string.Empty, author, publisher)
+    { }
+
+    public Book(string title, string isbn, string author, string publisher) : base(title, publisher, PublicationType.Book)
+    {
+        // isbn 인수는 "-" 문자가 없는 10자리 또는 13자리 숫자 문자열이어야 합니다.
+        // 우리는 또한 ISBN이 유효한지 확인하기 위해 체크섬 자릿수를 계산된 체크섬과 비교할 수 있습니다.
+        //
+        if (!string.IsNullOrEmpty(isbn))
+        {
+            // ISBN 길이가 올바른지 확인합니다.
+            if (!(isbn.Length == 10 || isbn.Length == 13))
+                throw new ArgumentException("The ISBN must be a 10- or 13-character numeric string.");
+            if (!ulong.TryParse(isbn, out _))
+                throw new ArgumentException("The ISBN can consist of numeric characters only.");
+        }
+        ISBN = isbn;
+
+        Author = author;
+    }
+
+    public string ISBN { get; }
+
+    public string Author { get; }
+
+    public decimal Price { get; private set; }
+
+    // 세 자리 ISO 통화 기호.
+    public string? Currency { get; private set; }
+
+    // 이전 가격을 반환하고 새 가격을 설정합니다.
+    public decimal SetPrice(decimal price, string currency)
+    {
+        if (price < 0)
+            throw new ArgumentOutOfRangeException(nameof(price), "The price cannot be negative.");
+        decimal oldValue = Price;
+        Price = price;
+
+        if (currency.Length != 3)
+            throw new ArgumentException("The ISO currency symbol is a 3-character string.");
+        Currency = currency;
+
+        return oldValue;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Book book)
+            return false;
+        else
+            return ISBN == book.ISBN;
+    }
+
+    public override int GetHashCode() => ISBN.GetHashCode();
+
+    public override string ToString() => $"{(string.IsNullOrEmpty(Author) ? "" : Author + ", ")}{Title}";
+}
+```
+
+`Publication`으로부터 상속받은 멤버 외에도 `Book` 클래스는 다음과 같은 고유한 멤버와 멤버 재정의를 정의합니다:
+
+**두 개의 생성자**
+
+두 `Book` 생성자는 세 개의 공통 매개변수를 공유합니다. `title`과 `publisher`는 `Publication` 생성자의 매개변수에 해당합니다. 세 번째 매개변수는 `author`로, 이는 공개 불변 `Author` 속성에 저장됩니다. 한 생성자는 `isbn` 매개변수를 포함하며, 이는 `ISBN` 자동 속성에 저장됩니다.
+
+첫 번째 생성자는 `this` 키워드를 사용하여 다른 생성자를 호출합니다. 생성자 체이닝은 생성자를 정의할 때 일반적인 패턴입니다. 매개변수가 적은 생성자는 매개변수가 많은 생성자를 호출할 때 기본값을 제공합니다.
+
+두 번째 생성자는 `base` 키워드를 사용하여 제목과 출판사 이름을 기본 클래스 생성자로 전달합니다. 소스 코드에서 기본 클래스 생성자를 명시적으로 호출하지 않으면, C# 컴파일러가 기본 클래스의 기본 또는 매개변수 없는 생성자를 자동으로 호출합니다.
+
+**읽기 전용 ISBN 속성**
+
+`ISBN` 속성은 `Book` 객체의 국제 표준 도서 번호(10자리 또는 13자리 고유 번호)를 반환합니다. `ISBN`은 `Book` 생성자 중 하나에 인수로 제공됩니다. `ISBN`은 컴파일러에 의해 자동으로 생성된 백킹 필드에 저장됩니다.
+
+**읽기 전용 Author 속성**
+
+`Author` 속성은 두 `Book` 생성자에 인수로 제공된 저자 이름을 저장합니다.
+
+**두 개의 읽기 전용 가격 관련 속성**
+
+`Price`와 `Currency` 속성은 `SetPrice` 메서드 호출 시 인수로 제공됩니다. `Currency` 속성은 세 자리 ISO 통화 기호입니다(예: USD는 미국 달러). ISO 통화 기호는 `ISOCurrencySymbol` 속성에서 가져올 수 있습니다. 이 두 속성은 외부에서는 읽기 전용이지만, `Book` 클래스 내의 코드에서 설정할 수 있습니다.
+
+**SetPrice 메서드**
+
+`SetPrice` 메서드는 `Price`와 `Currency` 속성의 값을 설정합니다. 이 값은 동일한 속성에서 반환됩니다.
+
+**ToString 메서드 재정의**
+
+기본 클래스 `Publication`에서 상속받은 `ToString` 메서드를 재정의합니다. `Object.Equals(Object)` 및 `GetHashCode` 메서드도 재정의합니다.
+
+기본적으로 `Object.Equals(Object)` 메서드는 참조 동등성을 테스트합니다. 즉, 두 객체 변수가 동일한 객체를 참조할 때만 동등하다고 간주됩니다. 반면, `Book` 클래스에서는 두 `Book` 객체가 동일한 `ISBN`을 가질 경우 동등해야 합니다.
+
+`Object.Equals(Object)` 메서드를 재정의할 때는 `GetHashCode` 메서드도 재정의해야 합니다. 이는 런타임에서 효율적인 검색을 위해 해시된 컬렉션에 항목을 저장하는 데 사용하는 값을 반환합니다. 해시 코드는 동등성 테스트와 일치하는 값을 반환해야 합니다. `ISBN` 속성의 두 `Book` 객체가 동일할 때 `Object.Equals(Object)`가 `true`를 반환하도록 재정의했으므로, `ISBN` 속성에서 반환된 문자열의 `GetHashCode` 메서드를 호출하여 계산된 해시 코드를 반환합니다.
+
+다음 그림은 `Book` 클래스와 기본 클래스인 `Publication` 간의 관계를 보여줍니다.
+
+![](../img/05_CSharp_기초/book-class.jpg)
+
+이제 `Book` 객체를 인스턴스화하고, 고유 멤버와 상속된 멤버를 호출하며, `Publication` 또는 `Book` 타입의 매개변수를 기대하는 메서드의 인수로 전달할 수 있습니다. 다음 예제는 이를 보여줍니다.
+
+```csharp
+public class ClassExample
+{
+    public static void Main()
+    {
+        var book = new Book("The Tempest", "0971655819", "Shakespeare, William",
+                            "Public Domain Press");
+        ShowPublicationInfo(book);
+        book.Publish(new DateTime(2016, 8, 18));
+        ShowPublicationInfo(book);
+
+        var book2 = new Book("The Tempest", "Classic Works Press", "Shakespeare, William");
+        Console.Write($"{book.Title} and {book2.Title} are the same publication: " +
+              $"{((Publication)book).Equals(book2)}");
+    }
+
+    public static void ShowPublicationInfo(Publication pub)
+    {
+        string pubDate = pub.GetPublicationDate();
+        Console.WriteLine($"{pub.Title}, " +
+                  $"{(pubDate == "NYP" ? "Not Yet Published" : "published on " + pubDate)} by {pub.Publisher}");
+    }
+}
+// 예제는 다음 출력을 표시합니다:
+//        The Tempest, Not Yet Published by Public Domain Press
+//        The Tempest, published on 8/18/2016 by Public Domain Press
+//        The Tempest and The Tempest are the same publication: False
+```
+
+### Designing abstract base classes and their derived classes
+
+이전 예제에서는 파생 클래스들이 코드를 공유할 수 있도록 여러 메서드에 대한 구현을 제공하는 기본 클래스를 정의했습니다. 그러나 많은 경우 기본 클래스가 구현을 제공할 것으로 예상되지 않습니다. 대신, 기본 클래스는 추상 메서드를 선언하는 추상 클래스이며, 각 파생 클래스가 구현해야 하는 멤버를 정의하는 템플릿 역할을 합니다. 일반적으로 추상 기본 클래스에서 각 파생 타입의 구현은 해당 타입에 고유합니다. 클래스가 출판 객체를 인스턴스화하는 것이 의미가 없기 때문에 추상 키워드로 표시했지만, 해당 클래스는 출판물에 공통된 기능의 구현을 제공했습니다.
+
+예를 들어, 각 닫힌 2차원 기하학적 도형은 두 가지 속성을 포함합니다: 면적, 도형의 내부 범위; 그리고 둘레, 도형의 가장자리를 따라 측정한 거리. 그러나 이러한 속성이 계산되는 방식은 특정 도형에 완전히 의존합니다. 예를 들어, 원의 둘레(또는 주변) 계산 공식은 사각형의 공식과 다릅니다. Shape 클래스는 추상 메서드를 가진 추상 클래스입니다. 이는 파생 클래스가 동일한 기능을 공유하지만, 해당 기능을 다르게 구현함을 나타냅니다.
+
+다음 예제에서는 Area와 Perimeter라는 두 가지 속성을 정의하는 Shape라는 추상 기본 클래스를 정의합니다. 클래스는 추상 키워드로 표시될 뿐만 아니라 각 인스턴스 멤버도 추상 키워드로 표시됩니다. 이 경우 Shape는 Object.ToString 메서드를 재정의하여 완전한 이름이 아닌 타입의 이름을 반환합니다. 그리고 GetArea와 GetPerimeter라는 두 개의 정적 멤버를 정의하여 호출자가 파생 클래스의 인스턴스의 면적과 둘레를 쉽게 가져올 수 있도록 합니다. 이러한 메서드 중 하나에 파생 클래스의 인스턴스를 전달하면 런타임은 파생 클래스의 메서드 오버라이드를 호출합니다.
+
+```csharp
+public abstract class Shape
+{
+    public abstract double Area { get; }
+
+    public abstract double Perimeter { get; }
+
+    public override string ToString() => GetType().Name;
+
+    public static double GetArea(Shape shape) => shape.Area;
+
+    public static double GetPerimeter(Shape shape) => shape.Perimeter;
+}
+```
+
+이후 특정 도형을 나타내는 Shape에서 몇 가지 클래스를 파생시킬 수 있습니다. 다음 예제에서는 Square, Rectangle, Circle이라는 세 가지 클래스를 정의합니다. 각 클래스는 해당 도형에 고유한 공식을 사용하여 면적과 둘레를 계산합니다. 일부 파생 클래스는 Rectangle.Diagonal 및 Circle.Diameter와 같이 해당 도형을 나타내는 속성도 정의합니다.
+
+```csharp
+using System;
+
+public class Square : Shape
+{
+    public Square(double length)
+    {
+        Side = length;
+    }
+
+    public double Side { get; }
+
+    public override double Area => Math.Pow(Side, 2);
+
+    public override double Perimeter => Side * 4;
+
+    public double Diagonal => Math.Round(Math.Sqrt(2) * Side, 2);
+}
+
+public class Rectangle : Shape
+{
+    public Rectangle(double length, double width)
+    {
+        Length = length;
+        Width = width;
+    }
+
+    public double Length { get; }
+
+    public double Width { get; }
+
+    public override double Area => Length * Width;
+
+    public override double Perimeter => 2 * Length + 2 * Width;
+
+    public bool IsSquare() => Length == Width;
+
+    public double Diagonal => Math.Round(Math.Sqrt(Math.Pow(Length, 2) + Math.Pow(Width, 2)), 2);
+}
+
+public class Circle : Shape
+{
+    public Circle(double radius)
+    {
+        Radius = radius;
+    }
+
+    public override double Area => Math.Round(Math.PI * Math.Pow(Radius, 2), 2);
+
+    public override double Perimeter => Math.Round(Math.PI * 2 * Radius, 2);
+
+    // Define a circumference, since it's the more familiar term.
+    public double Circumference => Perimeter;
+
+    public double Radius { get; }
+
+    public double Diameter => Radius * 2;
+}
+```
+
+다음 예제에서는 Shape에서 파생된 객체를 사용합니다. Shape에서 파생된 객체 배열을 인스턴스화하고 Shape 클래스의 정적 메서드를 호출하여 Shape 속성 값을 반환합니다. 런타임은 파생 타입의 재정의된 속성에서 값을 가져옵니다. 또한 예제는 배열의 각 Shape 객체를 해당 파생 타입으로 캐스팅하고 캐스트가 성공하면 해당 Shape 하위 클래스의 속성을 가져옵니다.
+
+```csharp
+using System;
+
+public class Example
+{
+    public static void Main()
+    {
+        Shape[] shapes = { new Rectangle(10, 12), new Square(5),
+                    new Circle(3) };
+        foreach (Shape shape in shapes)
+        {
+            Console.WriteLine($"{shape}: area, {Shape.GetArea(shape)}; " +
+                              $"perimeter, {Shape.GetPerimeter(shape)}");
+            if (shape is Rectangle rect)
+            {
+                Console.WriteLine($"   Is Square: {rect.IsSquare()}, Diagonal: {rect.Diagonal}");
+                continue;
+            }
+            if (shape is Square sq)
+            {
+                Console.WriteLine($"   Diagonal: {sq.Diagonal}");
+                continue;
+            }
+        }
+    }
+}
+// The example displays the following output:
+//         Rectangle: area, 120; perimeter, 44
+//            Is Square: False, Diagonal: 15.62
+//         Square: area, 25; perimeter, 20
+//            Diagonal: 7.07
+//         Circle: area, 28.27; perimeter, 18.85
+```
+
+---
+## 패턴 일치와 is 및 as 연산자를 사용하여 안전하게 캐스트하는 방법
+
+객체가 다형성이기 때문에 기본 클래스 타입의 변수가 파생 타입을 가질 수 있습니다. 파생 타입의 인스턴스 멤버에 접근하려면 값을 다시 파생 타입으로 캐스팅해야 합니다. 그러나 캐스팅은 InvalidCastException을 발생시킬 위험이 있습니다. C#은 캐스트가 성공할 때만 조건부로 캐스트를 수행하는 패턴 매칭 문을 제공합니다. C#은 또한 값이 특정 타입인지 테스트하는 `is` 및 `as` 연산자를 제공합니다.
+
+다음 예제는 패턴 매칭 `is` 문을 사용하는 방법을 보여줍니다:
+
+```csharp
+var g = new Giraffe();
+var a = new Animal();
+FeedMammals(g);
+FeedMammals(a);
+// Output:
+// Eating.
+// Animal is not a Mammal
+
+SuperNova sn = new SuperNova();
+TestForMammals(g);
+TestForMammals(sn);
+
+static void FeedMammals(Animal a)
+{
+    if (a is Mammal m)
+    {
+        m.Eat();
+    }
+    else
+    {
+        // 변수 'm'은 여기서 범위에 포함되지 않으며 사용할 수 없습니다.
+        Console.WriteLine($"{a.GetType().Name} is not a Mammal");
+    }
+}
+
+static void TestForMammals(object o)
+{
+    // 또한 'as' 연산자를 사용하고 변수를 참조하기 전에 null을 테스트할 수 있습니다.
+    var m = o as Mammal;
+    if (m != null)
+    {
+        Console.WriteLine(m.ToString());
+    }
+    else
+    {
+        Console.WriteLine($"{o.GetType().Name} is not a Mammal");
+    }
+}
+// Output:
+// I am an animal.
+// SuperNova is not a Mammal
+
+class Animal
+{
+    public void Eat() { Console.WriteLine("Eating."); }
+    public override string ToString()
+    {
+        return "I am an animal.";
+    }
+}
+class Mammal : Animal { }
+class Giraffe : Mammal { }
+
+class SuperNova { }
+```
+
+위의 예제는 패턴 매칭 문법의 몇 가지 기능을 보여줍니다. `if (a is Mammal m)` 문은 테스트와 초기화 할당을 결합합니다. 할당은 테스트가 성공할 때만 발생합니다. 변수 `m`은 할당된 내포된 `if` 문에서만 범위 내에 있습니다. 같은 메서드에서 나중에 `m`에 접근할 수 없습니다. 앞의 예제는 또한 `as` 연산자를 사용하여 객체를 지정된 타입으로 변환하는 방법을 보여줍니다.
+
+다음 예제는 null 가능 값 타입에 값이 있는지 테스트하는 데 동일한 문법을 사용하는 방법을 보여줍니다:
+
+```csharp
+int i = 5;
+PatternMatchingNullable(i);
+
+int? j = null;
+PatternMatchingNullable(j);
+
+double d = 9.78654;
+PatternMatchingNullable(d);
+
+PatternMatchingSwitch(i);
+PatternMatchingSwitch(j);
+PatternMatchingSwitch(d);
+
+static void PatternMatchingNullable(ValueType? val)
+{
+    if (val is int j) // 패턴에서는 nullable 타입이 허용되지 않습니다.
+    {
+        Console.WriteLine(j);
+    }
+    else if (val is null) // val이 값이 없는 nullable 타입인 경우 이 표현식은 참입니다.
+    {
+        Console.WriteLine("val is a nullable type with the null value");
+    }
+    else
+    {
+        Console.WriteLine("Could not convert " + val.ToString());
+    }
+}
+
+static void PatternMatchingSwitch(ValueType? val)
+{
+    switch (val)
+    {
+        case int number:
+            Console.WriteLine(number);
+            break;
+        case long number:
+            Console.WriteLine(number);
+            break;
+        case decimal number:
+            Console.WriteLine(number);
+            break;
+        case float number:
+            Console.WriteLine(number);
+            break;
+        case double number:
+            Console.WriteLine(number);
+            break;
+        case null:
+            Console.WriteLine("val is a nullable type with the null value");
+            break;
+        default:
+            Console.WriteLine("Could not convert " + val.ToString());
+            break;
+    }
+}
+```
+
+위의 예제는 변환에 사용할 수 있는 패턴 매칭의 다른 기능을 보여줍니다. null 값을 명시적으로 확인하여 변수를 null 패턴으로 테스트할 수 있습니다. 변수의 런타임 값이 null인 경우 특정 타입을 확인하는 `is` 문은 항상 false를 반환합니다. 패턴 매칭 `is` 문은 `int?` 또는 `Nullable<int>`와 같은 nullable 값 타입을 허용하지 않지만 다른 모든 값 타입을 테스트할 수 있습니다. 앞의 예제에서 `is` 패턴은 nullable 값 타입에만 국한되지 않습니다. 참조 타입의 변수에 값이 있는지 또는 null인지 테스트하는 데에도 사용할 수 있습니다.
+
+위의 예제는 또한 변수가 여러 다른 타입 중 하나일 수 있는 switch 문에서 타입 패턴을 사용하는 방법을 보여줍니다.
+
+변수가 주어진 타입인지 테스트하지만 새로운 변수에 할당하지 않으려면 참조 타입 및 nullable 값 타입에 대해 `is` 및 `as` 연산자를 사용할 수 있습니다. 다음 코드는 패턴 매칭이 도입되기 전에 주어진 타입의 변수인지 테스트하기 위해 C# 언어의 일부였던 `is` 및 `as` 문을 사용하는 방법을 보여줍니다:
+
+```csharp
+// 캐스트를 수행하기 전에 타입을 확인하려면 is 연산자를 사용합니다.
+Giraffe g = new();
+UseIsOperator(g);
+
+// 변수를 참조하기 전에 null을 테스트하기 위해 as 연산자를 사용합니다.
+UseAsOperator(g);
+
+// 변수를 참조하기 전에 null을 테스트하기 위해 패턴 매칭을 사용합니다.
+UsePatternMatchingIs(g);
+
+// 호환되지 않는 타입을 테스트하기 위해 as 연산자를 사용합니다.
+SuperNova sn = new();
+UseAsOperator(sn);
+
+// 값 타입과 함께 as 연산자를 사용합니다.
+// 메서드 본문에서 int?로의 암시적 변환에 유의하십시오.
+int i = 5;
+UseAsWithNullable(i);
+
+double d = 9.78654;
+UseAsWithNullable(d);
+
+static void UseIsOperator(Animal a)
+{
+    if (a is Mammal)
+    {
+        Mammal m = (Mammal)a;
+        m.Eat();
+    }
+}
+
+static void UsePatternMatchingIs(Animal a)
+{
+    if (a is Mammal m)
+    {
+        m.Eat();
+    }
+}
+
+static void UseAsOperator(object o)
+{
+    Mammal? m = o as Mammal;
+    if (m is not null)
+    {
+        Console.WriteLine(m.ToString());
+    }
+    else
+    {
+        Console.WriteLine($"{o.GetType().Name} is not a Mammal");
+    }
+}
+
+static void UseAsWithNullable(System.ValueType val)
+{
+    int? j = val as int?;
+    if (j is not null)
+    {
+        Console.WriteLine(j);
+    }
+    else
+    {
+        Console.WriteLine("Could not convert " + val.ToString());
+    }
+}
+
+class Animal
+{
+    public void Eat() => Console.WriteLine("Eating.");
+    public override string ToString() => "I am an animal.";
+}
+class Mammal : Animal { }
+class Giraffe : Mammal { }
+
+class SuperNova { }
+```
+
+이 코드를 패턴 매칭 코드와 비교해 보면 패턴 매칭 문법이 테스트와 할당을 단일 문으로 결합하여 더 강력한 기능을 제공한다는 것을 알 수 있습니다. 가능한 경우 패턴 매칭 문법을 사용하십시오.
+
+---
+## 자습서: 패턴 일치를 사용하여 형식 기반 및 데이터 기반 알고리즘 빌드
+
+다른 라이브러리에 있는 타입을 확장한 것처럼 동작하는 기능을 작성할 수 있습니다. 패턴의 또 다른 용도는 확장된 타입의 기본 기능이 아닌, 애플리케이션에 필요한 기능을 만드는 것입니다.
+
+이 튜토리얼에서는 다음을 배우게 됩니다:
+
+1. 패턴 매칭을 사용해야 하는 상황을 인식합니다.
+2. 패턴 매칭 표현식을 사용하여 타입 및 속성 값에 따라 동작을 구현합니다.
+3. 패턴 매칭을 다른 기술과 결합하여 완전한 알고리즘을 만듭니다.
+
+### Scenarios for pattern matching
+
+현대 개발에서는 여러 출처에서 데이터를 통합하고, 그 데이터를 하나의 통합된 애플리케이션에서 정보와 인사이트로 제공하는 경우가 많습니다. 여러분과 여러분의 팀은 모든 들어오는 데이터를 나타내는 타입에 대한 제어나 접근 권한을 갖지 못할 것입니다.
+
+고전적인 객체 지향 설계는 여러 데이터 출처의 각 데이터 타입을 나타내는 타입을 애플리케이션에서 생성하는 것을 요구합니다. 그런 다음 애플리케이션은 이러한 새로운 타입과 함께 작동하고, 상속 계층을 구축하며, 가상 메서드를 생성하고, 추상을 구현합니다. 이러한 기술은 작동하며 때로는 최고의 도구입니다. 그러나 다른 경우에는 더 적은 코드를 작성할 수 있습니다. 데이터와 해당 데이터를 조작하는 작업을 분리하는 기술을 사용하여 더 명확한 코드를 작성할 수 있습니다.
+
+이 튜토리얼에서는 단일 시나리오를 위해 여러 외부 출처에서 들어오는 데이터를 처리하는 애플리케이션을 만들고 탐색할 것입니다. 패턴 매칭이 원래 시스템의 일부가 아닌 방식으로 데이터를 소비하고 처리하는 효율적인 방법을 제공하는 방법을 확인할 수 있습니다.
+
+교통 관리를 위해 통행료와 피크 시간 요금을 사용하는 대도시 지역을 고려해 보십시오. 차량의 타입에 따라 통행료를 계산하는 애플리케이션을 작성합니다. 이후의 개선 사항은 차량 내 승객 수를 기준으로 요금을 책정하는 기능을 통합합니다. 추가 개선 사항은 요일과 시간에 따라 요금을 책정하는 기능을 추가합니다.
+
+이 짧은 설명에서 이 시스템을 모델링하기 위해 객체 계층 구조를 빠르게 구상했을 수 있습니다. 그러나 여러분의 데이터는 다른 차량 등록 관리 시스템과 같은 여러 출처에서 제공됩니다. 이러한 시스템은 해당 데이터를 모델링하기 위해 서로 다른 클래스를 제공하며, 사용할 수 있는 단일 객체 모델이 없습니다. 이 튜토리얼에서는 다음 코드에 표시된 대로 이러한 외부 시스템의 차량 데이터를 모델링하기 위해 이러한 단순화된 클래스를 사용할 것입니다:
+
+```csharp
+namespace ConsumerVehicleRegistration
+{
+    public class Car
+    {
+        public int Passengers { get; set; }
+    }
+}
+
+namespace CommercialRegistration
+{
+    public class DeliveryTruck
+    {
+        public int GrossWeightClass { get; set; }
+    }
+}
+
+namespace LiveryRegistration
+{
+    public class Taxi
+    {
+        public int Fares { get; set; }
+    }
+
+    public class Bus
+    {
+        public int Capacity { get; set; }
+        public int Riders { get; set; }
+    }
+}
+```
+
+시작 코드는 dotnet/samples GitHub 저장소에서 다운로드할 수 있습니다. 차량 클래스는 서로 다른 시스템에서 제공되며, 서로 다른 네임스페이스에 있습니다. System.Object 외에는 공통 기본 클래스를 사용할 수 없습니다.
+
+### Pattern matching designs
+
+이 튜토리얼에서 사용된 시나리오는 패턴 매칭이 잘 해결할 수 있는 문제 유형을 강조합니다:
+
+- 작업해야 하는 객체가 목표에 맞는 객체 계층 구조에 속해 있지 않습니다. 관련이 없는 시스템의 일부인 클래스와 작업해야 할 수 있습니다.
+- 추가하고 있는 기능이 이러한 클래스의 핵심 추상화의 일부가 아닙니다. 차량 유형에 따라 통행료가 달라지지만, 통행료는 차량의 핵심 기능이 아닙니다.
+- 데이터의 형태와 그 데이터에 대한 작업이 함께 설명되지 않을 때, C#의 패턴 매칭 기능을 사용하면 작업이 더 쉬워집니다.
+
+### Implement the basic toll calculations
+
+가장 기본적인 통행료 계산은 차량 유형에만 의존합니다:
+
+- 자동차(Car)는 $2.00입니다.
+- 택시(Taxi)는 $3.50입니다.
+- 버스(Bus)는 $5.00입니다.
+- 화물 트럭(DeliveryTruck)은 $10.00입니다.
+
+새로운 `TollCalculator` 클래스를 만들고, 차량 유형에 대한 패턴 매칭을 구현하여 통행료를 계산하세요. 다음 코드는 `TollCalculator`의 초기 구현을 보여줍니다.
+
+```csharp
+using System;
+using CommercialRegistration;
+using ConsumerVehicleRegistration;
+using LiveryRegistration;
+
+namespace Calculators;
+
+public class TollCalculator
+{
+    public decimal CalculateToll(object vehicle) =>
+        vehicle switch
+    {
+        Car c           => 2.00m,
+        Taxi t          => 3.50m,
+        Bus b           => 5.00m,
+        DeliveryTruck t => 10.00m,
+        { }             => throw new ArgumentException(message: "알려지지 않은 차량 유형입니다.", paramName: nameof(vehicle)),
+        null            => throw new ArgumentNullException(nameof(vehicle))
+    };
+}
+```
+
+위 코드는 선언 패턴을 테스트하는 switch 표현식을 사용합니다. switch 표현식은 변수(위 코드에서는 `vehicle`)로 시작하며, 그 뒤에 switch 키워드가 옵니다. 그 다음에 모든 switch 암이 중괄호 안에 위치합니다. switch 표현식은 switch 문을 둘러싼 문법을 다른 방식으로 정제합니다. case 키워드는 생략되며, 각 암의 결과는 표현식입니다. 마지막 두 개의 암은 새로운 언어 기능을 보여줍니다. `{ }` 케이스는 이전 암과 일치하지 않은 모든 null이 아닌 객체와 일치합니다. 이 암은 이 메서드에 전달된 잘못된 유형을 잡아냅니다. `{ }` 케이스는 각 차량 유형의 케이스 다음에 와야 합니다. 순서가 반대로 되면 `{ }` 케이스가 우선권을 갖게 됩니다. 마지막으로, null 상수 패턴은 null이 이 메서드에 전달될 때를 감지합니다. null 패턴은 다른 패턴이 올바른 유형의 null이 아닌 객체와만 일치하기 때문에 마지막에 올 수 있습니다.
+
+다음 코드로 이 코드를 `Program.cs`에서 테스트할 수 있습니다:
+
+```csharp
+using System;
+using CommercialRegistration;
+using ConsumerVehicleRegistration;
+using LiveryRegistration;
+
+using Calculators;
+
+var tollCalc = new TollCalculator();
+
+var car = new Car();
+var taxi = new Taxi();
+var bus = new Bus();
+var truck = new DeliveryTruck();
+
+Console.WriteLine($"자동차의 통행료는 {tollCalc.CalculateToll(car)}입니다.");
+Console.WriteLine($"택시의 통행료는 {tollCalc.CalculateToll(taxi)}입니다.");
+Console.WriteLine($"버스의 통행료는 {tollCalc.CalculateToll(bus)}입니다.");
+Console.WriteLine($"트럭의 통행료는 {tollCalc.CalculateToll(truck)}입니다.");
+
+try
+{
+    tollCalc.CalculateToll("이것은 실패할 것입니다");
+}
+catch (ArgumentException e)
+{
+    Console.WriteLine("잘못된 유형을 사용하여 인수 예외를 잡았습니다.");
+}
+try
+{
+    tollCalc.CalculateToll(null!);
+}
+catch (ArgumentNullException e)
+{
+    Console.WriteLine("null을 사용하여 인수 예외를 잡았습니다.");
+}
+```
+
+이 코드는 시작 프로젝트에 포함되어 있지만 주석 처리되어 있습니다. 주석을 제거하면 작성한 내용을 테스트할 수 있습니다.
+
+이제 패턴이 코드와 데이터를 분리하여 알고리즘을 작성하는 데 어떻게 도움이 되는지 보기 시작할 것입니다. switch 표현식은 유형을 테스트하고 결과에 따라 다른 값을 생성합니다. 이는 시작에 불과합니다.
+
+### Add occupancy pricing
+
+통행 당국은 차량이 최대 용량으로 이동하도록 장려하고 싶어합니다. 그들은 승객이 적을 때 더 많은 요금을 부과하고, 가득 찬 차량에 대해 더 낮은 요금을 제공하기로 결정했습니다:
+
+- 승객이 없는 자동차와 택시는 추가 요금 $0.50을 지불합니다.
+- 승객이 두 명인 자동차와 택시는 $0.50 할인을 받습니다.
+- 승객이 세 명 이상인 자동차와 택시는 $1.00 할인을 받습니다.
+- 탑승률이 50% 미만인 버스는 추가 요금 $2.00을 지불합니다.
+- 탑승률이 90% 이상인 버스는 $1.00 할인을 받습니다.
+
+이 규칙은 동일한 switch 표현식에서 속성 패턴을 사용하여 구현할 수 있습니다. 속성 패턴은 속성 값을 상수 값과 비교합니다. 속성 패턴은 타입이 결정된 후 객체의 속성을 검사합니다. 자동차에 대한 단일 케이스는 네 가지 다른 케이스로 확장됩니다:
+
+```csharp
+vehicle switch
+{
+    Car { Passengers: 0 } => 2.00m + 0.50m,
+    Car { Passengers: 1 } => 2.00m,
+    Car { Passengers: 2 } => 2.00m - 0.50m,
+    Car                   => 2.00m - 1.00m,
+
+    // ...
+};
+```
+
+처음 세 가지 케이스는 타입을 Car로 테스트한 다음 Passengers 속성의 값을 확인합니다. 두 가지가 모두 일치하면 해당 표현식이 평가되어 반환됩니다.
+
+택시에 대한 케이스도 비슷한 방식으로 확장됩니다:
+
+```csharp
+vehicle switch
+{
+    // ...
+
+    Taxi { Fares: 0 }  => 3.50m + 1.00m,
+    Taxi { Fares: 1 }  => 3.50m,
+    Taxi { Fares: 2 }  => 3.50m - 0.50m,
+    Taxi               => 3.50m - 1.00m,
+
+    // ...
+};
+```
+
+다음으로 버스의 경우를 확장하여 점유 규칙을 구현합니다. 다음 예제를 참고하십시오:
+
+```csharp
+vehicle switch
+{
+    // ...
+
+    Bus b when ((double)b.Riders / (double)b.Capacity) < 0.50 => 5.00m + 2.00m,
+    Bus b when ((double)b.Riders / (double)b.Capacity) > 0.90 => 5.00m - 1.00m,
+    Bus => 5.00m,
+
+    // ...
+};
+```
+
+통행 당국은 배달 트럭의 승객 수에는 관심이 없습니다. 대신, 트럭의 무게 등급에 따라 통행료를 조정합니다:
+
+- 5000 lbs 이상의 트럭은 추가 요금 $5.00을 부과합니다.
+- 3000 lbs 이하의 경량 트럭은 $2.00 할인을 받습니다.
+
+이 규칙은 다음 코드로 구현됩니다:
+
+```csharp
+vehicle switch
+{
+    // ...
+
+    DeliveryTruck t when (t.GrossWeightClass > 5000) => 10.00m + 5.00m,
+    DeliveryTruck t when (t.GrossWeightClass < 3000) => 10.00m - 2.00m,
+    DeliveryTruck => 10.00m,
+};
+```
+
+위 코드는 switch 암의 when 절을 보여줍니다. when 절은 속성에 대한 동등성 외의 조건을 테스트하는 데 사용됩니다. 완료되면 다음과 같은 코드를 가지게 됩니다:
+
+```csharp
+vehicle switch
+{
+    Car { Passengers: 0 }        => 2.00m + 0.50m,
+    Car { Passengers: 1 }        => 2.00m,
+    Car { Passengers: 2 }        => 2.00m - 0.50m,
+    Car                          => 2.00m - 1.00m,
+
+    Taxi { Fares: 0 }  => 3.50m + 1.00m,
+    Taxi { Fares: 1 }  => 3.50m,
+    Taxi { Fares: 2 }  => 3.50m - 0.50m,
+    Taxi               => 3.50m - 1.00m,
+
+    Bus b when ((double)b.Riders / (double)b.Capacity) < 0.50 => 5.00m + 2.00m,
+    Bus b when ((double)b.Riders / (double)b.Capacity) > 0.90 => 5.00m - 1.00m,
+    Bus => 5.00m,
+
+    DeliveryTruck t when (t.GrossWeightClass > 5000) => 10.00m + 5.00m,
+    DeliveryTruck t when (t.GrossWeightClass < 3000) => 10.00m - 2.00m,
+    DeliveryTruck => 10.00m,
+
+    { }     => throw new ArgumentException(message: "알려지지 않은 차량 유형입니다.", paramName: nameof(vehicle)),
+    null    => throw new ArgumentNullException(nameof(vehicle))
+};
+```
+
+이 switch 암의 많은 부분은 재귀 패턴의 예입니다. 예를 들어, `Car { Passengers: 1 }`는 속성 패턴 내부에 상수 패턴을 보여줍니다.
+
+중첩된 switch를 사용하여 이 코드를 덜 반복적으로 만들 수 있습니다. Car와 Taxi 모두 앞의 예제에서 네 가지 다른 암을 가지고 있습니다. 두 경우 모두 상수 패턴으로 연결되는 선언 패턴을 만들 수 있습니다. 이 기술은 다음 코드에서 보여줍니다:
+
+```csharp
+public decimal CalculateToll(object vehicle) =>
+    vehicle switch
+    {
+        Car c => c.Passengers switch
+        {
+            0 => 2.00m + 0.5m,
+            1 => 2.0m,
+            2 => 2.0m - 0.5m,
+            _ => 2.00m - 1.0m
+        },
+
+        Taxi t => t.Fares switch
+        {
+            0 => 3.50m + 1.00m,
+            1 => 3.50m,
+            2 => 3.50m - 0.50m,
+            _ => 3.50m - 1.00m
+        },
+
+        Bus b when ((double)b.Riders / (double)b.Capacity) < 0.50 => 5.00m + 2.00m,
+        Bus b when ((double)b.Riders / (double)b.Capacity) > 0.90 => 5.00m - 1.00m,
+        Bus b => 5.00m,
+
+        DeliveryTruck t when (t.GrossWeightClass > 5000) => 10.00m + 5.00m,
+        DeliveryTruck t when (t.GrossWeightClass < 3000) => 10.00m - 2.00m,
+        DeliveryTruck t => 10.00m,
+
+        { }  => throw new ArgumentException(message: "알려지지 않은 차량 유형입니다.", paramName: nameof(vehicle)),
+        null => throw new ArgumentNullException(nameof(vehicle))
+    };
+```
+
+위 예제에서 재귀 표현식을 사용하면 속성 값을 테스트하는 자식 암을 포함하는 Car와 Taxi 암을 반복하지 않습니다. 이 기술은 속성에 대한 범위를 테스트하는 것이 아닌, 불연속 값을 테스트하는 Bus와 DeliveryTruck 암에는 사용되지 않습니다.
+
+### Add peak pricing
+
+최종 기능으로, 통행 당국은 시간에 민감한 피크 요금을 추가하고자 합니다. 아침과 저녁 러시아워 동안에는 통행료가 두 배로 증가합니다. 이 규칙은 단일 방향의 교통에만 영향을 미칩니다: 아침에는 도심으로 들어가는 교통, 저녁 러시아워에는 도심을 떠나는 교통에 해당합니다. 근무 시간의 다른 시간대에는 통행료가 50% 증가합니다. 늦은 밤과 이른 아침에는 통행료가 25% 감소합니다. 주말에는 시간에 관계없이 정상 요금이 부과됩니다. 다음 코드를 사용하여 이러한 규칙을 if 및 else 문으로 표현할 수 있습니다:
+
+```csharp
+public decimal PeakTimePremiumIfElse(DateTime timeOfToll, bool inbound)
+{
+    if ((timeOfToll.DayOfWeek == DayOfWeek.Saturday) ||
+        (timeOfToll.DayOfWeek == DayOfWeek.Sunday))
+    {
+        return 1.0m;
+    }
+    else
+    {
+        int hour = timeOfToll.Hour;
+        if (hour < 6)
+        {
+            return 0.75m;
+        }
+        else if (hour < 10)
+        {
+            if (inbound)
+            {
+                return 2.0m;
+            }
+            else
+            {
+                return 1.0m;
+            }
+        }
+        else if (hour < 16)
+        {
+            return 1.5m;
+        }
+        else if (hour < 20)
+        {
+            if (inbound)
+            {
+                return 1.0m;
+            }
+            else
+            {
+                return 2.0m;
+            }
+        }
+        else // Overnight
+        {
+            return 0.75m;
+        }
+    }
+}
+```
+
+위 코드는 올바르게 작동하지만 가독성이 떨어집니다. 모든 입력 경우와 중첩된 if 문을 연결하여 코드를 이해해야 합니다. 대신, 이 기능에 대해 패턴 매칭을 사용할 것이지만 다른 기술과 통합할 것입니다. 방향, 요일, 시간의 모든 조합을 고려하는 단일 패턴 매치 표현식을 작성할 수 있습니다. 결과는 복잡한 표현식이 되어 읽기 어렵고 이해하기 어렵습니다. 따라서 이러한 상태를 간결하게 설명하는 값의 튜플을 구성한 다음 패턴 매칭을 사용하여 통행료의 승수 계산합니다. 튜플에는 세 가지 조건이 포함됩니다:
+
+- 요일이 평일인지 주말인지
+- 통행료가 부과되는 시간대
+- 방향이 도심으로 들어가는지 나가는지
+
+다음 표는 입력 값의 조합과 피크 요금 승수를 보여줍니다:
+
+| 요일     | 시간대       | 방향   | 승수   |
+|----------|--------------|--------|--------|
+| 평일     | 아침 러시아워 | 도심 진입 | x 2.00 |
+| 평일     | 아침 러시아워 | 도심 출발 | x 1.00 |
+| 평일     | 근무 시간     | 도심 진입 | x 1.50 |
+| 평일     | 근무 시간     | 도심 출발 | x 1.50 |
+| 평일     | 저녁 러시아워 | 도심 진입 | x 1.00 |
+| 평일     | 저녁 러시아워 | 도심 출발 | x 2.00 |
+| 평일     | 밤 시간       | 도심 진입 | x 0.75 |
+| 평일     | 밤 시간       | 도심 출발 | x 0.75 |
+| 주말     | 아침 러시아워 | 도심 진입 | x 1.00 |
+| 주말     | 아침 러시아워 | 도심 출발 | x 1.00 |
+| 주말     | 근무 시간     | 도심 진입 | x 1.00 |
+| 주말     | 근무 시간     | 도심 출발 | x 1.00 |
+| 주말     | 저녁 러시아워 | 도심 진입 | x 1.00 |
+| 주말     | 저녁 러시아워 | 도심 출발 | x 1.00 |
+| 주말     | 밤 시간       | 도심 진입 | x 1.00 |
+| 주말     | 밤 시간       | 도심 출발 | x 1.00 |
+
+세 가지 변수의 16가지 다른 조합이 있습니다. 일부 조건을 결합하여 최종 switch 표현식을 단순화할 수 있습니다.
+
+통행료를 수집하는 시스템은 통행료가 수집된 시간을 나타내는 `DateTime` 구조를 사용합니다. 앞의 표에서 변수를 생성하는 멤버 메서드를 작성합니다. 다음 함수는 `DateTime`이 주말인지 평일인지를 나타내기 위해 패턴 매칭 switch 표현식을 사용합니다:
+
+```csharp
+private static bool IsWeekDay(DateTime timeOfToll) =>
+    timeOfToll.DayOfWeek switch
+    {
+        DayOfWeek.Monday    => true,
+        DayOfWeek.Tuesday   => true,
+        DayOfWeek.Wednesday => true,
+        DayOfWeek.Thursday  => true,
+        DayOfWeek.Friday    => true,
+        DayOfWeek.Saturday  => false,
+        DayOfWeek.Sunday    => false
+    };
+```
+
+이 방법은 올바르지만 반복적입니다. 다음 코드와 같이 단순화할 수 있습니다:
+
+```csharp
+private static bool IsWeekDay(DateTime timeOfToll) =>
+    timeOfToll.DayOfWeek switch
+    {
+        DayOfWeek.Saturday => false,
+        DayOfWeek.Sunday => false,
+        _ => true
+    };
+```
+
+다음으로 시간을 블록으로 분류하는 유사한 함수를 추가합니다:
+
+```csharp
+private enum TimeBand
+{
+    MorningRush,
+    Daytime,
+    EveningRush,
+    Overnight
+}
+
+private static TimeBand GetTimeBand(DateTime timeOfToll) =>
+    timeOfToll.Hour switch
+    {
+        < 6 or > 19 => TimeBand.Overnight,
+        < 10 => TimeBand.MorningRush,
+        < 16 => TimeBand.Daytime,
+        _ => TimeBand.EveningRush,
+    };
+```
+
+각 시간 범위를 이산 값으로 변환하기 위해 private enum을 추가합니다. 그런 다음, `GetTimeBand` 메서드는 관계 패턴과 결합 또는 패턴을 사용합니다. 관계 패턴은 숫자 값을 <, >, <= 또는 >=를 사용하여 테스트할 수 있습니다. 또는 패턴은 표현식이 하나 이상의 패턴과 일치하는지 테스트합니다. 또한 and 패턴을 사용하여 표현식이 두 개의 명확한 패턴과 일치하는지 확인하고, not 패턴을 사용하여 표현식이 패턴과 일치하지 않는지 테스트할 수 있습니다.
+
+이러한 메서드를 생성한 후 튜플 패턴을 사용한 또 다른 switch 표현식을 사용하여 가격 프리미엄을 계산할 수 있습니다. 모든 16개 암이 포함된 switch 표현식을 작성할 수 있습니다:
+
+```csharp
+public decimal PeakTimePremiumFull(DateTime timeOfToll, bool inbound) =>
+    (IsWeekDay(timeOfToll), GetTimeBand(timeOfToll), inbound) switch
+    {
+        (true, TimeBand.MorningRush, true) => 2.00m,
+        (true, TimeBand.MorningRush, false) => 1.00m,
+        (true, TimeBand.Daytime, true) => 1.50m,
+        (true, TimeBand.Daytime, false) => 1.50m,
+        (true, TimeBand.EveningRush, true) => 1.00m,
+        (true, TimeBand.EveningRush, false) => 2.00m,
+        (true, TimeBand.Overnight, true) => 0.75m,
+        (true, TimeBand.Overnight, false) => 0.75m,
+        (false, TimeBand.MorningRush, true) => 1.00m,
+        (false, TimeBand.MorningRush, false) => 1.00m,
+        (false, TimeBand.Daytime, true) => 1.00m,
+        (false, TimeBand.Daytime, false) => 1.00m,
+        (false, TimeBand.EveningRush, true) => 1.00m,
+        (false, TimeBand.EveningRush, false) => 1.00m,
+        (false, TimeBand.Overnight, true) => 1.00m,
+        (false, TimeBand.Overnight, false) => 1.00m,
+    };
+```
+
+위 코드는 작동하지만 단순화할 수 있습니다. 주말의 모든 여덟 가지 조합은 동일한 통행료를 가집니다. 다음 줄로 모든 여덟 가지를 대체할 수 있습니다:
+
+```csharp
+(false, _, _) => 1.0m,
+```
+
+평일 낮 시간 및 밤 시간 동안에는 도심 진입 및 출발 트래픽 모두 동일한 승수를 가집니다. 다음 두 줄로 네 개의 switch 암을 대체할 수 있습니다:
+
+```csharp
+(true, TimeBand.Overnight, _) => 0.75m,
+(true, TimeBand.Daytime, _)   => 1.5m,
+```
+
+위 두 가지 변경 후 코드는 다음과 같습니다:
+
+```csharp
+public decimal PeakTimePremium(DateTime timeOfToll, bool inbound) =>
+    (IsWeekDay(timeOfToll), GetTimeBand(timeOfToll), inbound) switch
+    {
+        (true, TimeBand.MorningRush, true)  => 2.00m,
+        (true, TimeBand.MorningRush, false) => 1.00m,
+        (true, TimeBand.Daytime,     _)     => 1.50m,
+        (true, TimeBand.EveningRush, true)  => 1.00m,
+        (true, TimeBand.EveningRush, false) => 2.00m,
+        (true, TimeBand.Overnight,   _)     => 0.75m,
+        (false, _,                   _)     => 1.00m,
+    };
+```
+
+마지막으로, 정규 요금을 지불하는 두 개의 러시아워 시간을 제거할 수 있습니다. 해당 암을 제거한 후 마지막 switch 암에서 false를 폐기(_)로 대체할 수 있습니다. 다음과 같은 최종 메서드를 얻을 수 있습니다:
+
+```csharp
+public decimal PeakTimePremium(DateTime timeOfToll, bool inbound) =>
+    (IsWeekDay(timeOfToll), GetTimeBand(timeOfToll), inbound) switch
+    {
+        (true, TimeBand.Overnight, _) => 0.75m,
+        (true, TimeBand.Daytime, _) => 1.5m,
+        (true, TimeBand.MorningRush, true) => 2.0m,
+        (true, TimeBand.EveningRush, false) => 2.0m,
+        _ => 1.0m,
+    };
+```
+
+이 예제는 패턴 매칭의 장점 중 하나를 강조합니다: 패턴 분기는 순서대로 평가됩니다. 분기를 재정렬하여 이전 분기가 나중에 처리할 케이스를 처리하도록 하면 컴파일러가 도달할 수 없는 코드에 대해 경고합니다. 이러한 언어 규칙 덕분에 코드가 변경되지 않았다는 확신을 가지고 앞의 단순화를 수행할 수 있었습니다.
+
+패턴 매칭은 일부 유형의 코드를 더 읽기 쉽게 만들며 클래스에 코드를 추가할 수 없는 경우 객체 지향 기술의 대안을 제공합니다. 클라우드는 데이터와 기능이 분리되어 존재하게 합니다. 데이터의 형태와 그에 대한 작업은 반드시 함께 설명되지 않습니다. 이 튜토리얼에서는 기존 데이터를 원래 기능과 완전히 다른 방식으로 소비했습니다. 패턴 매칭을 통해 이러한 타입을 확장할 수는 없지만, 해당 타입을 무시하는 기능을 작성할 수 있었습니다.
+
+---
+## How to handle an exception using try/catch
+
+try-catch 블록의 목적은 작동 중인 코드에서 발생한 예외를 잡아내고 처리하는 것입니다. 일부 예외는 catch 블록에서 처리할 수 있으며, 예외가 다시 발생하지 않고 문제를 해결할 수 있습니다. 그러나 대부분의 경우 적절한 예외가 발생하도록 하는 것 외에는 할 수 있는 일이 없습니다.
+
+### Example
+
+이 예제에서 `IndexOutOfRangeException`은 가장 적절한 예외가 아닙니다. 오류가 호출자가 전달한 인덱스 인수에 의해 발생했기 때문에 `ArgumentOutOfRangeException`이 메서드에 더 적합합니다.
+
+```csharp
+static int GetInt(int[] array, int index)
+{
+    try
+    {
+        return array[index];
+    }
+    catch (IndexOutOfRangeException e)  // CS0168
+    {
+        Console.WriteLine(e.Message);
+        // 새로운 예외의 InnerException으로 IndexOutOfRangeException을 설정합니다.
+        throw new ArgumentOutOfRangeException("index 인수가 범위를 벗어났습니다.", e);
+    }
+}
+```
+
+### Comments
+
+예외를 발생시키는 코드는 try 블록에 포함됩니다. 그 뒤에 바로 catch 문이 추가되어 `IndexOutOfRangeException`이 발생할 경우 이를 처리합니다. catch 블록은 `IndexOutOfRangeException`을 처리하고 대신 더 적절한 `ArgumentOutOfRangeException`을 발생시킵니다. 호출자에게 가능한 한 많은 정보를 제공하기 위해 원래 예외를 새로운 예외의 `InnerException`으로 지정하는 것이 좋습니다. `InnerException` 속성은 읽기 전용이므로 새로운 예외의 생성자에서 이를 할당해야 합니다.
+
+---
+
+## How to execute cleanup code using finally
+
+finally 문은 예외가 발생하더라도 필요한 객체 정리(보통 외부 리소스를 보유하고 있는 객체)를 즉시 수행하도록 보장하기 위한 것입니다. 이러한 정리 작업의 한 예로, 공용 언어 런타임에 의해 객체가 가비지 수집될 때까지 기다리지 않고 FileStream을 사용한 직후에 Close를 호출하는 것이 있습니다. 다음과 같습니다:
+
+```csharp
+static void CodeWithoutCleanup()
+{
+    FileStream? file = null;
+    FileInfo fileInfo = new FileInfo("./file.txt");
+
+    file = fileInfo.OpenWrite();
+    file.WriteByte(0xF);
+
+    file.Close();
+}
+```
+
+### Example
+
+이전 코드를 try-catch-finally 문으로 변환하면, 정리 코드는 작업 코드와 분리됩니다. 다음과 같이 합니다.
+
+```csharp
+static void CodeWithCleanup()
+{
+    FileStream? file = null;
+    FileInfo? fileInfo = null;
+
+    try
+    {
+        fileInfo = new FileInfo("./file.txt");
+
+        file = fileInfo.OpenWrite();
+        file.WriteByte(0xF);
+    }
+    catch (UnauthorizedAccessException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    finally
+    {
+        file?.Close();
+    }
+}
+```
+
+예외는 OpenWrite() 호출 이전의 try 블록 내 어느 시점에서든 발생할 수 있으며, OpenWrite() 호출 자체가 실패할 수도 있기 때문에 파일이 열려 있는 상태에서 Close를 시도할 수는 없습니다. finally 블록은 FileStream 객체가 null이 아닌지 확인하여 Close 메서드를 호출하기 전에 체크를 추가합니다. null 체크가 없으면 finally 블록 자체에서 NullReferenceException을 발생시킬 수 있지만, 가능하면 finally 블록에서 예외를 발생시키는 것은 피해야 합니다.
+
+데이터베이스 연결 또한 finally 블록에서 닫는 것이 좋은 후보입니다. 데이터베이스 서버에 허용되는 연결 수가 제한되는 경우가 많기 때문에 데이터베이스 연결을 가능한 빨리 닫아야 합니다. 예외가 발생하여 연결을 닫지 못하는 경우 finally 블록을 사용하는 것이 가비지 수집을 기다리는 것보다 낫습니다.
 
 ---
 ## 출처
@@ -5592,6 +7409,11 @@ Console.WriteLine(account.GetAccountHistory());
  - [C# 설명서>기본 사항>자습서>명령줄 인수를 표시하는 방법](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/how-to-display-command-line-arguments)
  - [C# 설명서>기본 사항>자습서>클래스 소개](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/classes)
  - [C# 설명서>기본 사항>자습서>개체 지향 C#](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/oop)
+ - [C# 설명서>기본 사항>자습서>C# 및 .NET의 상속](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/inheritance)
+ - [C# 설명서>기본 사항>자습서>형식 변환](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/safely-cast-using-pattern-matching-is-and-as-operators)
+ - [C# 설명서>기본 사항>자습서>패턴 일치를 통한 데이터 기반 알고리즘 빌드](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/tutorials/pattern-matching)
+ - [C# 설명서>기본 사항>자습서>try-catch를 사용하여 예외를 처리하는 방법](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/exceptions/how-to-handle-an-exception-using-try-catch)
+ - [C# 설명서>기본 사항>자습서>finally를 사용하여 정리 코드를 실행하는 방법](https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/exceptions/how-to-execute-cleanup-code-using-finally)
 
 ---
 ## [다음](./05_MVC_디자인패턴_소개.md)
