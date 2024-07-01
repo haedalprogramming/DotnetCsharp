@@ -40,13 +40,16 @@ C# Dotnet으로 배우는 백엔드 기초
      - [Part 9, add validation to an ASP.NET Core MVC app](./day2/content/09_09_add_validation.md)
      - [Part 10, examine the Details and Delete methods of an ASP.NET Core app](./day2/content/09_10_detail_delete.md)
 
- - Backend 3일차 : minimal API with ASP.NET Core
-   - ASP.NET Core tutorials > APIs > Minimal APIs
-     - ...
-   - ASP.NET Core > APIs > Minimal APIs
-     - ...
+ - [Backend 3일차 : API with ASP.NET Core](./day3/README.md)
+    - [Minimal APIs overview](./day3/content/01_Minimal_APIs_overview.md)
+    - [Tutorial: Create a minimal API with ASP.NET Core](./day3/content/02_Tutorial.md)
+    - [Controller Based APIs overview](./day3/content/03_controller_based_api_overview.md)
+    - [Tutorial: Create a web API with ASP.NET Core](./day3/content/04_Tutorial.md)
+    - [Create a web API with ASP.NET Core and MongoDB](./day3/content/05_Tutorial_with_db.md)
 
 
 # Reference
  - https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0
  - https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio
+ - https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-8.0&tabs=visual-studio
+ - https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0

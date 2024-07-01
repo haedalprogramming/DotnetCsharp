@@ -13,10 +13,8 @@
   - [컨트롤러 추가](#컨트롤러-추가)
   - [웹 API 테스트](#웹-api-테스트)
   - [JSON 직렬화 옵션 구성](#json-직렬화-옵션-구성)
-  - [웹 API에 인증 지원 추가](#웹-api에-인증-지원-추가)
   - [추가 리소스](#추가-리소스)
   - [출처](#출처)
-  - [다음](#다음)
 
 ---
 
@@ -164,9 +162,28 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 1. 프로젝트 루트에 *Models* 디렉터리를 추가합니다.
 1. *Models* 디렉터리에 `Book` 클래스를 다음 코드로 추가합니다:
 
-   :::code language="csharp" source="first
+    ```C#
+    using MongoDB.Bson;
+    using MongoDB.Bson.Serialization.Attributes;
 
--mongo-app/samples_snapshot/6.x/Book.cs":::
+    namespace BookStoreApi.Models;
+
+    public class Book
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
+
+        [BsonElement("Name")]
+        public string BookName { get; set; } = null!;
+
+        public decimal Price { get; set; }
+
+        public string Category { get; set; } = null!;
+
+        public string Author { get; set; } = null!;
+    }
+    ```
 
    앞의 클래스에서 `Id` 속성은 다음과 같습니다:
 
@@ -180,48 +197,144 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 
 1. `appsettings.json`에 다음 데이터베이스 구성 값을 추가합니다:
 
-   :::code language="json" source="first-mongo-app/samples/6.x/BookStoreApi/appsettings.json" highlight="2-6":::
+    ```json
+    {
+        "BookStoreDatabase": {
+            "ConnectionString": "mongodb://localhost:27017",
+            "DatabaseName": "BookStore",
+            "BooksCollectionName": "Books"
+        },
+        "Logging": {
+            "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning"
+            }
+        },
+        "AllowedHosts": "*"
+    }
+    ```
 
-1. *Models* 디렉터리에 `BookStoreDatabaseSettings` 클래스를 다음 코드로 추가합니다:
+2. *Models* 디렉터리에 `BookStoreDatabaseSettings` 클래스를 다음 코드로 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Models/BookStoreDatabaseSettings.cs":::
+    ```C#
+    namespace BookStoreApi.Models;
+
+    public class BookStoreDatabaseSettings
+    {
+        public string ConnectionString { get; set; } = null!;
+
+        public string DatabaseName { get; set; } = null!;
+
+        public string BooksCollectionName { get; set; } = null!;
+    }
+    ```
 
    앞의 `BookStoreDatabaseSettings` 클래스는 `appsettings.json` 파일의 `BookStoreDatabase` 속성 값을 저장하는 데 사용됩니다. 매핑 과정을 용이하게 하기 위해 JSON 및 C# 속성 이름이 동일하게 지정되었습니다.
 
-1. `Program.cs`에 다음 강조된 코드를 추가합니다:
+3. `Program.cs`에 다음 강조된 코드를 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Program.cs" id="snippet_BookStoreDatabaseSettings" highlight="4-5":::
+    ```C#
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.Configure<BookStoreDatabaseSettings>(
+        builder.Configuration.GetSection("BookStoreDatabase"));
+    ```
 
    앞의 코드에서, `appsettings.json` 파일의 `BookStoreDatabase` 섹션이 바인딩된 구성 인스턴스가 종속성 주입(DI) 컨테이너에 등록됩니다. 예를 들어, `BookStoreDatabaseSettings` 객체의 `ConnectionString` 속성은 `appsettings.json`의 `BookStoreDatabase:ConnectionString` 속성으로 채워집니다.
 
-1. `BookStoreDatabaseSettings` 참조를 해결하기 위해 `Program.cs` 상단에 다음 코드를 추가합니다:
+4. `BookStoreDatabaseSettings` 참조를 해결하기 위해 `Program.cs` 상단에 다음 코드를 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Program.cs" id="snippet_UsingModels":::
+    ```C#
+    using BookStoreApi.Models;
+    ```
 
 ## CRUD 작업 서비스 추가
 
 1. 프로젝트 루트에 *Services* 디렉터리를 추가합니다.
-1. *Services* 디렉터리에 `BooksService` 클래스를 다음 코드로 추가합니다:
+2. *Services* 디렉터리에 `BooksService` 클래스를 다음 코드로 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Services/BooksService.cs" id="snippet_File":::
+    ```C#
+    using BookStoreApi.Models;
+    using Microsoft.Extensions.Options;
+    using MongoDB.Driver;
 
-   앞의 코드에서, `BookStoreDatabaseSettings` 인스턴스는 생성자 주입을 통해 DI에서 검색됩니다. 이 기술을 통해 [구성 모델 추가](#add-a-configuration-model) 섹션에서 추가된 `appsettings.json` 구성 값에 액세스할 수 있습니다.
+    namespace BookStoreApi.Services;
 
-1. `Program.cs`에 다음 강조된 코드를 추가합니다:
+    public class BooksService
+    {
+        private readonly IMongoCollection<Book> _booksCollection;
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Program.cs" id="snippet_BooksService" highlight="7":::
+        public BooksService(
+            IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
+        {
+            var mongoClient = new MongoClient(
+                bookStoreDatabaseSettings.Value.ConnectionString);
+
+            var mongoDatabase = mongoClient.GetDatabase(
+                bookStoreDatabaseSettings.Value.DatabaseName);
+
+            _booksCollection = mongoDatabase.GetCollection<Book>(
+                bookStoreDatabaseSettings.Value.BooksCollectionName);
+        }
+
+        public async Task<List<Book>> GetAsync() =>
+            await _booksCollection.Find(_ => true).ToListAsync();
+
+        public async Task<Book?> GetAsync(string id) =>
+            await _booksCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+        public async Task CreateAsync(Book newBook) =>
+            await _booksCollection.InsertOneAsync(newBook);
+
+        public async Task UpdateAsync(string id, Book updatedBook) =>
+            await _booksCollection.ReplaceOneAsync(x => x.Id == id, updatedBook);
+
+        public async Task RemoveAsync(string id) =>
+            await _booksCollection.DeleteOneAsync(x => x.Id == id);
+    }
+    ```
+
+   앞의 코드에서, `BookStoreDatabaseSettings` 인스턴스는 생성자 주입을 통해 DI에서 검색됩니다. 이 기술을 통해 [구성 모델 추가]섹션에서 추가된 `appsettings.json` 구성 값에 액세스할 수 있습니다.
+
+3. `Program.cs`에 다음 강조된 코드를 추가합니다:
+
+    ```C#
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.Configure<BookStoreDatabaseSettings>(
+        builder.Configuration.GetSection("BookStoreDatabase"));
+
+    builder.Services.AddSingleton<BooksService>();
+    ```
 
    앞의 코드에서, `BooksService` 클래스는 소비 클래스에서 생성자 주입을 지원하기 위해 DI에 등록됩니다. `BooksService`는 `MongoClient`에 직접 의존하므로 단일 서비스 수명이 가장 적합합니다. 공식 [Mongo 클라이언트 재사용 가이드라인](https://mongodb.github.io/mongo-csharp-driver/2.14/reference/driver/connecting/#re-use)에 따르면, `MongoClient`는 단일 서비스 수명으로 DI에 등록되어야 합니다.
 
-1. `BooksService` 참조를 해결하기 위해 `Program.cs` 상단에 다음 코드를 추가합니다:
+4. `BooksService` 참조를 해결하기 위해 `Program.cs` 상단에 다음 코드를 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Program.cs" id="snippet_UsingServices":::
+    ```C#
+    using BookStoreApi.Services;
+    ```
 
 `BooksService` 클래스는 데이터베이스에 대해 CRUD 작업을 실행하기 위해 다음 `MongoDB.Driver` 멤버를 사용합니다:
 
 * [MongoClient](https://mongodb.github.io/mongo-csharp-driver/2.14/apidocs/html/T_MongoDB_Driver_MongoClient.htm): 데이터베이스 작업을 실행하기 위해 서버 인스턴스를 읽습니다. 이 클래스의 생성자는 MongoDB 연결 문자열에서 제공됩니다:
 
-  :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Services/BooksService.cs" id="snippet_ctor" highlight="4-5":::
+    ```C#
+    public BooksService(
+        IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
+    {
+        var mongoClient = new MongoClient(
+            bookStoreDatabaseSettings.Value.ConnectionString);
+
+        var mongoDatabase = mongoClient.GetDatabase(
+            bookStoreDatabaseSettings.Value.DatabaseName);
+
+        _booksCollection = mongoDatabase.GetCollection<Book>(
+            bookStoreDatabaseSettings.Value.BooksCollectionName);
+    }
+    ```
 
 * [IMongoDatabase](https://mongodb.github.io/mongo-csharp-driver/2.14/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm): 작업을 실행하기 위해 Mongo 데이터베이스를 나타냅니다. 이 튜토리얼에서는 특정 컬렉션의 데이터에 액세스하기 위해 인터페이스의 일반 [GetCollection\<TDocument>(collection)](https://mongodb.github.io/mongo-csharp-driver/2.14/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm) 메서드를 사용합니다. 이 메서드가 호출된 후 컬렉션에 대해 CRUD 작업을 실행합니다. `GetCollection<TDocument>(collection)` 메서드 호출에서:
 
@@ -239,13 +352,86 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 
 *Controllers* 디렉터리에 `BooksController` 클래스를 다음 코드로 추가합니다:
 
-:::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Controllers/BooksController.cs":::
+```C#
+using BookStoreApi.Models;
+using BookStoreApi.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BookStoreApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class BooksController : ControllerBase
+{
+    private readonly BooksService _booksService;
+
+    public BooksController(BooksService booksService) =>
+        _booksService = booksService;
+
+    [HttpGet]
+    public async Task<List<Book>> Get() =>
+        await _booksService.GetAsync();
+
+    [HttpGet("{id:length(24)}")]
+    public async Task<ActionResult<Book>> Get(string id)
+    {
+        var book = await _booksService.GetAsync(id);
+
+        if (book is null)
+        {
+            return NotFound();
+        }
+
+        return book;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post(Book newBook)
+    {
+        await _booksService.CreateAsync(newBook);
+
+        return CreatedAtAction(nameof(Get), new { id = newBook.Id }, newBook);
+    }
+
+    [HttpPut("{id:length(24)}")]
+    public async Task<IActionResult> Update(string id, Book updatedBook)
+    {
+        var book = await _booksService.GetAsync(id);
+
+        if (book is null)
+        {
+            return NotFound();
+        }
+
+        updatedBook.Id = book.Id;
+
+        await _booksService.UpdateAsync(id, updatedBook);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:length(24)}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var book = await _booksService.GetAsync(id);
+
+        if (book is null)
+        {
+            return NotFound();
+        }
+
+        await _booksService.RemoveAsync(id);
+
+        return NoContent();
+    }
+}
+```
 
 앞의 웹 API 컨트롤러는:
 
 * CRUD 작업을 실행하기 위해 `BooksService` 클래스를 사용합니다.
 * GET, POST, PUT 및 DELETE HTTP 요청을 지원하는 작업 메서드를 포함합니다.
-* `Create` 작업 메서드에서 <xref:Microsoft.AspNetCore.Mvc.ControllerBase.CreatedAtAction%2A>을 호출하여 [HTTP 201](https://www.rfc-editor.org/rfc/rfc9110#status.201) 응답을 반환합니다. 상태 코드 201은 서버에 새 리소스를 생성하는 HTTP POST 메서드의 표준 응답입니다. `CreatedAtAction`은 응답에 `Location` 헤더도 추가합니다. `Location` 헤더는 새로 생성된 책의 URI를 지정합니다.
+* `Create` 작업 메서드에서 `CreatedAtAction` 을 호출하여 [HTTP 201](https://www.rfc-editor.org/rfc/rfc9110#status.201) 응답을 반환합니다. 상태 코드 201은 서버에 새 리소스를 생성하는 HTTP POST 메서드의 표준 응답입니다. `CreatedAtAction`은 응답에 `Location` 헤더도 추가합니다. `Location` 헤더는 새로 생성된 책의 URI를 지정합니다.
 
 ## 웹 API 테스트
 
@@ -288,7 +474,7 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 
 ## JSON 직렬화 옵션 구성
 
-[웹 API 테스트](#test-the-web-api) 섹션에서 반환된 JSON 응답에 대해 변경해야 할 두 가지 세부 사항이 있습니다:
+[웹 API 테스트] 섹션에서 반환된 JSON 응답에 대해 변경해야 할 두 가지 세부 사항이 있습니다:
 
 * 속성 이름의 기본 camel case를 CLR 객체의 속성 이름과 일치하도록 Pascal case로 변경해야 합니다.
 * `bookName` 속성은 `Name`으로 반환되어야 합니다.
@@ -297,32 +483,43 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 
 1. `Program.cs`에서 `AddControllers` 메서드 호출에 다음 강조된 코드를 체인으로 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Program.cs" id="snippet_AddControllers" highlight="10-11":::
+    ```C#
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.Configure<BookStoreDatabaseSettings>(
+        builder.Configuration.GetSection("BookStoreDatabase"));
+
+    builder.Services.AddSingleton<BooksService>();
+
+    builder.Services.AddControllers()
+        .AddJsonOptions(
+            options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+    ```
 
    위의 변경 사항으로 웹 API의 직렬화된 JSON 응답의 속성 이름이 해당하는 CLR 객체 유형의 속성 이름과 일치합니다. 예를 들어, `Book` 클래스의 `Author` 속성은 `author` 대신 `Author`로 직렬화됩니다.
 
-1. `Models/Book.cs`에서 `BookName` 속성을 [`[JsonPropertyName]`](xref:System.Text.Json.Serialization.JsonPropertyNameAttribute) 속성으로 주석 처리합니다:
+2. `Models/Book.cs`에서 `BookName` 속성을 [`[JsonPropertyName]`](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonpropertynameattribute) 속성으로 주석 처리합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Models/Book.cs" id="snippet_BookName" highlight="2":::
+    ```C#
+    [BsonElement("Name")]
+    [JsonPropertyName("Name")]
+    public string BookName { get; set; } = null!;
+    ```
 
    `[JsonPropertyName]` 속성의 값인 `Name`은 웹 API의 직렬화된 JSON 응답에서 속성 이름을 나타냅니다.
 
-1. `[JsonProperty]` 속성 참조를 해결하기 위해 `Models/Book.cs` 상단에 다음 코드를 추가합니다:
+3. `[JsonProperty]` 속성 참조를 해결하기 위해 `Models/Book.cs` 상단에 다음 코드를 추가합니다:
 
-   :::code language="csharp" source="first-mongo-app/samples/6.x/BookStoreApi/Models/Book.cs" id="snippet_UsingSystemTextJsonSerialization":::
+    ```C#
+    using System.Text.Json.Serialization;
+    ```
 
-1. [웹 API 테스트](#test-the-web-api) 섹션에 정의된 단계를 반복합니다. JSON 속성 이름의 차이를 확인합니다.
-
-## 웹 API에 인증 지원 추가
-
-[!INCLUDE[](~/includes/DuendeIdentityServer.md)]
+4. [웹 API 테스트] 섹션에 정의된 단계를 반복합니다. JSON 속성 이름의 차이를 확인합니다.
 
 ## 추가 리소스
 
-* [샘플 코드 보기 또는 다운로드](https://github.com/dotnet/AspNetCore.Docs/tree/main/aspnetcore/tutorials/first-mongo-app/samples) ([다운로드 방법](xref:index#how-to-download-a-sample))
-* <xref:web-api/index>
-* <xref:web-api/action-return-types>
-* [ASP.NET Core로 웹 API 만들기](/training/modules/build-web-api-aspnet-core/)
+* [샘플 코드 보기 또는 다운로드](https://github.com/dotnet/AspNetCore.Docs/tree/main/aspnetcore/tutorials/first-mongo-app/samples) ([다운로드 방법](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-8.0#how-to-download-a-sample))
 
 :::moniker-end
 
@@ -330,5 +527,4 @@ Visual Studio Code 지침은 프로젝트 생성과 같은 ASP.NET Core 개발 �
 ## 출처
 [Create a web API with ASP.NET Core and MongoDB](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-8.0&tabs=visual-studio)
 
----
-## [다음](./02)
+
