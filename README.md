@@ -10,34 +10,46 @@ C# Dotnet으로 배우는 백엔드 기초
 
 # Contents
 
- - Backend 1일차 : ASP.NET Core 소개, C# 베이직, MVC 디자인 패턴, REST API, 환경 구축
-  - [Web개발의 이해](./day1/content/01_Web_개발의_이해.md)
-  - [Backend 소개](./day1/content/02_Backend_소개.md)
-  - [ASP.NET Core 소개](./day1/content/03_ASP.NET_Core_소개.md)
-  - [C# 베이직](./day1/content/04_CSharp_기초.md)
-  - [MVC 디자인패턴 소개](./day1/content/05_MVC_디자인패턴_소개.md)
-  - [REST API 소개](./day1/content/06_REST_API_소개.md)
-  - [환경 설정](./day1/content/07_환경설정.md)
+ - [Backend 1일차 : ASP.NET Core 소개, C# 베이직, MVC 디자인 패턴, REST API, 환경 구축](./day1/README.md)
+    - [Web개발의 이해](./day1/content/01_Web_개발의_이해.md)
+    - [Backend 소개](./day1/content/02_Backend_소개.md)
+    - [ASP.NET Core 소개](./day1/content/03_ASP.NET_Core_소개.md)
+    - [C# 베이직](./day1/content/04_CSharp_기초.md)
+    - [MVC 디자인패턴 소개](./day1/content/05_MVC_디자인패턴_소개.md)
+    - [REST API 소개](./day1/content/06_REST_API_소개.md)
+    - [환경 설정](./day1/content/07_환경설정.md)
     
- - Backend 2일차 : ASP.NET Core fundamental과 MVC 이용하여 웹앱 개발
-   - ASP.NET Core fundamentals
-      - [ASP.NET Core fundamentals overview](./day2/content/01_Overview.md)
-      - [App startup in ASP.NET Core](./day2/content/02_app_startup.md)
-      - [Dependency injection in ASP.NET Core](./day2/content/03_Dependency_injection.md)
-      - [ASP.NET Core support for Native AOT](./day2/content/04_native_aot.md)
-      - [Tutorial: Publish an ASP.NET Core app using Native AOT](./day2/content/05_native_aot_tutorial.md)
-      - [ASP.NET Core Request Delegate Generator](./day2/content/06_native_aot_RDG.md)
-      - ...
-  - ASP.NET Core tutorials > Web apps > MVC
-      - ...
+ - [Backend 2일차 : MVC 이용하여 웹앱 개발](./day2/README.md)
+   - [ASP.NET Core MVC 개요](./day2/content/01_MVC_Overview.md)
+   - [Views in ASP.NET Core MVC](./day2/content/02_View.md)
+   - [Partial views in ASP.NET Core](./day2/content/03_Partial_view.md)
+   - [Handle requests with controllers in ASP.NET Core MVC](./day2/content/04_Handle_requests_with_controllers_in_ASP.NET_Core_MVC.md)
+   - [Routing to controller actions in ASP.NET Core](./day2/content/05_Routing.md)
+   - [Dependency injection into controllers in ASP.NET Core](./day2/content/06_DI_Controller.md)
+   - [Dependency injection into views in ASP.NET Core](./day2/content/07_DI_View.md)
+   - [Unit test controller logic in ASP.NET Core](./day2/content/08_test.md)
+   - [Tutorial](./day2/content/09_01_get_started.md)
+     - [Get started with ASP.NET Core MVC](./day2/content/09_01_get_started.md)
+     - [Part 2, add a controller to an ASP.NET Core MVC app](./day2/content/09_02_add_controller.md)
+     - [Part 3, add a view to an ASP.NET Core MVC app](./day2/content/09_03_add_view.md)
+     - [Part 4, add a model to an ASP.NET Core MVC app](./day2/content/09_04_add_model.md)
+     - [Part 5, work with a database in an ASP.NET Core MVC app](./day2/content/09_05_working_with_sql.md)
+     - [Part 6, controller methods and views in ASP.NET Core](./day2/content/09_06_controller_methods_and_views.md)
+     - [Part 7, add search to an ASP.NET Core MVC app](./day2/content/09_07_add_search.md)
+     - [Part 8, add a new field to an ASP.NET Core MVC app](./day2/content/09_08_add_new_field.md)
+     - [Part 9, add validation to an ASP.NET Core MVC app](./day2/content/09_09_add_validation.md)
+     - [Part 10, examine the Details and Delete methods of an ASP.NET Core app](./day2/content/09_10_detail_delete.md)
 
- - Backend 3일차 : minimal API with ASP.NET Core
-   - ASP.NET Core tutorials > APIs > Minimal APIs
-     - ...
-   - ASP.NET Core > APIs > Minimal APIs
-     - ...
+ - [Backend 3일차 : API with ASP.NET Core](./day3/README.md)
+    - [Minimal APIs overview](./day3/content/01_Minimal_APIs_overview.md)
+    - [Tutorial: Create a minimal API with ASP.NET Core](./day3/content/02_Tutorial.md)
+    - [Controller Based APIs overview](./day3/content/03_controller_based_api_overview.md)
+    - [Tutorial: Create a web API with ASP.NET Core](./day3/content/04_Tutorial.md)
+    - [Create a web API with ASP.NET Core and MongoDB](./day3/content/05_Tutorial_with_db.md)
 
 
 # Reference
  - https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0
  - https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio
+ - https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-8.0&tabs=visual-studio
+ - https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0

@@ -360,4 +360,4 @@ HTML 헬퍼를 사용할 때, 모범 사례는 `PartialAsync`를 사용하는 �
 [Partial views in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/partial?view=aspnetcore-8.0)
 
 ---
-## [다음](./03_Partial_view.md)
+## [다음](./04_Handle_requests_with_controllers_in_ASP.NET_Core_MVC.md)
