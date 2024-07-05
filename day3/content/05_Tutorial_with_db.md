@@ -15,6 +15,7 @@
   - [JSON 직렬화 옵션 구성](#json-직렬화-옵션-구성)
   - [추가 리소스](#추가-리소스)
   - [출처](#출처)
+  - [다음](#다음)
 
 ---
 
@@ -521,10 +522,9 @@ public class BooksController : ControllerBase
 
 * [샘플 코드 보기 또는 다운로드](https://github.com/dotnet/AspNetCore.Docs/tree/main/aspnetcore/tutorials/first-mongo-app/samples) ([다운로드 방법](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-8.0#how-to-download-a-sample))
 
-:::moniker-end
-
 ---
 ## 출처
 [Create a web API with ASP.NET Core and MongoDB](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-8.0&tabs=visual-studio)
 
-
+---
+## [다음](./06_01_Razor_webapp_intro.md)
