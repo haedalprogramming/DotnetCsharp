@@ -40,12 +40,13 @@ C# Dotnet으로 배우는 백엔드 기초
      - [Part 9, add validation to an ASP.NET Core MVC app](./day2/content/09_09_add_validation.md)
      - [Part 10, examine the Details and Delete methods of an ASP.NET Core app](./day2/content/09_10_detail_delete.md)
 
- - [Backend 3일차 : API with ASP.NET Core](./day3/README.md)
+ - [Backend 3일차 : API with ASP.NET Core & Razor Pages](./day3/README.md)
     - [Minimal APIs overview](./day3/content/01_Minimal_APIs_overview.md)
     - [Tutorial: Create a minimal API with ASP.NET Core](./day3/content/02_Tutorial.md)
     - [Controller Based APIs overview](./day3/content/03_controller_based_api_overview.md)
     - [Tutorial: Create a web API with ASP.NET Core](./day3/content/04_Tutorial.md)
     - [Create a web API with ASP.NET Core and MongoDB](./day3/content/05_Tutorial_with_db.md)
+    - [Razor Pages in ASP.NET Core](./day3/content/06_01_Razor_webapp_intro.md)
 
 
 # Reference

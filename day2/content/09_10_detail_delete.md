@@ -6,7 +6,6 @@
     - [Azure에 게시하기](#azure에-게시하기)
   - [신뢰할 수 있는 웹 앱 패턴](#신뢰할-수-있는-웹-앱-패턴)
   - [출처](#출처)
-  - [다음](#다음)
 
 ---
 Movie 컨트롤러를 열고 `Details` 메서드를 확인하세요:
@@ -122,5 +121,3 @@ Azure에 배포하는 정보는 [자습서: Azure App Service에서 ASP.NET Core
 ## 출처
 [Part 10, examine the Details and Delete methods of an ASP.NET Core app](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/details?view=aspnetcore-8.0)
 
----
-## [다음]()
