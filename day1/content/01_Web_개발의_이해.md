@@ -264,7 +264,4 @@ W3C 국제화 활동은 웹 기술이 모든 언어, 문자 및 문화에서 작
 [Wikipedia World_Wide_Web](https://en.wikipedia.org/wiki/World_Wide_Web)
 
 ---
-## [다음](./02_Backend_소개.md)
-
-
-
+## [다음](./01_01_Web_구조와_상호작용.md)
