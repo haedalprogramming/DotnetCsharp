@@ -114,5 +114,5 @@ URI와 URL은 웹 상의 자원을 식별하고 접근하는 데 필수적인 �
 - [W3C - URI/URL/URN 공식 문서](https://www.w3.org/Addressing/URL/uri-spec.html)
 
 ---
-## [다음](./02_Backend_소개.md)
+## [다음](./01_03_HTTP.md)
 
