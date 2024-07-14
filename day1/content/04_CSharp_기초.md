@@ -306,4 +306,4 @@ static int GetInt(int[] array, int index)
  - [C# 설명서>시작하기>자습서>로컬 환경 설정](https://learn.microsoft.com/ko-kr/dotnet/csharp/tour-of-csharp/tutorials/local-environment)
 
 ---
-## [다음](./05_MVC_디자인패턴_소개.md)
+## [다음](./04_01_CSharp_Class_Object_Example.md)
